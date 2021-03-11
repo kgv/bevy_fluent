@@ -1,0 +1,7 @@
+(
+    locales: ["en-US"],
+    resources: [
+        "one.ftl",
+        "two.ftl",
+    ],
+)
