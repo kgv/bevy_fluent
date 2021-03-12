@@ -28,6 +28,10 @@ async fn load_resource<'a, 'b>(
 }
 
 /// `FluentResource` wrapper.
+///
+/// # See Also
+///
+/// [`FluentResource`](https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html).
 #[derive(Debug, TypeUuid)]
 #[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
 pub struct Resource(FluentResource);

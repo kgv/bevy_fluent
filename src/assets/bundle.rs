@@ -17,10 +17,35 @@ use std::{
 use typed_builder::TypedBuilder;
 use unic_langid::LanguageIdentifier;
 
+async fn load_bundle<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
+    let Intermediate { locales, resources } = ron::de::from_bytes(bytes)?;
+    let mut fluent_bundle = FluentBundle::new_concurrent(locales);
+    let mut asset_paths = Vec::new();
+    let parent = load_context.path().with_file_name("");
+    for mut path in resources {
+        if path.is_relative() {
+            path = parent.join(path);
+        }
+        let bytes = load_context.read_asset_bytes(&path).await?;
+        let fluent_resource = load_fluent_resource(&bytes).await?;
+        if let Err(error) = fluent_bundle.add_resource(fluent_resource) {
+            warn!("overriding fluent message: {:?}", error);
+        }
+        let asset_path = AssetPath::new(path, None);
+        asset_paths.push(asset_path.clone());
+    }
+    load_context
+        .set_default_asset(LoadedAsset::new(Bundle(fluent_bundle)).with_dependencies(asset_paths));
+    Ok(())
+}
+
 /// `FluentBundle` wrapper.
 ///
-/// A collection of resources for a single locale.  
-/// If locale fallback chain is empty then it is interlocale bundle.
+/// Note: if locale fallback chain is empty then it is interlocale bundle.
+///
+/// # See Also
+///
+/// [`FluentBundle`](https://docs.rs/fluent/0.15.0/fluent/bundle/struct.FluentBundle.html).
 #[derive(TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
 pub struct Bundle(FluentBundle<FluentResource, IntlLangMemoizer>);
@@ -78,37 +103,9 @@ impl AssetLoader for Loader {
     }
 }
 
-async fn load_bundle<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
-    let Intermediate { locales, resources } = ron::de::from_bytes(bytes)?;
-    let mut fluent_bundle = FluentBundle::new_concurrent(locales);
-    let mut asset_paths = Vec::new();
-    let parent = load_context.path().with_file_name("");
-    for mut path in resources {
-        if path.is_relative() {
-            path = parent.join(path);
-        }
-        let bytes = load_context.read_asset_bytes(&path).await?;
-        let fluent_resource = load_fluent_resource(&bytes).await?;
-        if let Err(error) = fluent_bundle.add_resource(fluent_resource) {
-            warn!("overriding fluent message: {:?}", error);
-        }
-        let asset_path = AssetPath::new(path, None);
-        asset_paths.push(asset_path.clone());
-    }
-    load_context
-        .set_default_asset(LoadedAsset::new(Bundle(fluent_bundle)).with_dependencies(asset_paths));
-    // load_context.set_labeled_asset(
-    //     "en-US",
-    //     LoadedAsset::new(Bundle {
-    //         locales,
-    //         resources: handles,
-    //     })
-    //     .with_dependencies(asset_paths),
-    // );
-    Ok(())
-}
-
 /// Message content query.
+///
+/// Provides access to message content according to the given components.
 #[derive(TypedBuilder)]
 pub struct Query<'a> {
     #[builder(setter(into))]
