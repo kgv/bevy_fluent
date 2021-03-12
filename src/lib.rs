@@ -13,6 +13,7 @@
 //! Formated *pattern* are called ***content***. ***Query*** provides access to
 //! *content* according to the given components.
 
+#[doc(inline)]
 pub use self::{
     assets::{
         bundle::{Loader as BundleAssetLoader, Query},
