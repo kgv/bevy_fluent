@@ -7,15 +7,71 @@
 
 Bevy plugin for localization using Fluent.
 
+## `Settings`
+
+- `default_locale`
+- `locale_folder`
+- `requested_locales`
+
 ## Definitions
 
 Fluent:
 
-The basic unit of translation in Fluent is called a ***message***. Each message
-has an ***identifier***. *Messages* (and terms, variants, attributes) store
-their values as ***patterns***.
+- each `*.ftl` file is a resource.
+
+The basic unit of translation in Fluent is called a ***message***. Each
+*message* has an ***identifier***. *Messages* (and ***terms***, ***variants***,
+***attributes***) store their values as ***patterns***.
 
 Local:
 
 Formated *pattern* are called ***content***. ***Query*** provides access to
 *content* according to the given components.
+
+## Locales root directory hierarchy (`locales`)
+
+***Locale*** is a collection of `*.ftl` files. *Locale* represents a directory
+that meets the following criteria: name matches
+[standard][unicode_language_identifier], contains a `locale.ron` file. The
+`locale.ron` file contains a list of `*.ftl` files related to this *locale*. The
+files themselves are located in the hierarchy of the *locale* root directory.
+The `locale.ron` file, located in the `locales` root directory, represents an
+interlocale that contains language independent resources.
+
+Hierarchy example:
+
+```md
+locales
+    - en-US
+        locale.ron
+        ...
+    - ru
+        - ru-RU
+            locale.ron
+            ...
+        - ru-BY
+            locale.ron
+            ...
+    locale.ron
+```
+
+Note that `locales/ru` directory does not contain the `locale.ron` file, so it
+is not *locale* directory. However, you can create a `locales/ru/locale.ron`
+file, which will add `ru` locale.
+
+## See Also
+
+- [0.4 -> 0.5 Migration Guide](https://github.com/bevyengine/bevy/issues/1601)
+
+- [Issue](https://github.com/bevyengine/bevy/issues/461)
+- [Discussions](https://github.com/bevyengine/bevy/discussions/1345)
+
+- [Fluent fallback](https://crates.io/crates/fluent_fallback)
+- [Fluent resource manager](https://crates.io/crates/fluent_resmgr)
+- [Message format 2.0`](https://github.com/zbraniecki/message-format-2.0-rs)
+- [L10nRegistry](https://github.com/zbraniecki/l10nregistry-rs)
+
+- [Locales](https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json)
+- [Unicode Language Identifier][unicode_language_identifier]
+
+[unicode_language_identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier
