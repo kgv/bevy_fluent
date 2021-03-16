@@ -1,10 +1,13 @@
-#[doc(inline)]
-pub use self::resource::Resource;
+//! Assets module
+//!
+//! Any entity located directly in this module is [`Asset`](bevy::asset::Asset).
 
+#[doc(inline)]
+pub use self::fluent::FluentAsset;
 #[cfg(not(feature = "implicit"))]
 #[doc(inline)]
-pub use self::bundle::Bundle;
+pub use self::locale::LocaleAssets;
 
+pub mod fluent;
 #[cfg(not(feature = "implicit"))]
-pub mod bundle;
-pub mod resource;
+pub mod locale;

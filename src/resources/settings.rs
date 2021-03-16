@@ -1,6 +1,6 @@
 use unic_langid::{langid, LanguageIdentifier};
 
-/// Settings.
+/// Settings
 #[derive(Clone, Debug)]
 pub struct Settings {
     pub default_locale: Option<LanguageIdentifier>,

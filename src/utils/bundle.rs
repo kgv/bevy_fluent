@@ -4,8 +4,9 @@ use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::borrow::Borrow;
 use typed_builder::TypedBuilder;
 
+/// Extension methods for [`FluentBundle`](fluent::bundle::FluentBundle)
 pub trait BundleExt {
-    /// Get message content by query.
+    /// Get message content by query
     fn content(&self, query: &Query) -> Option<String>;
 }
 
@@ -29,7 +30,7 @@ impl<T: Borrow<FluentResource>> BundleExt for FluentBundle<T, IntlLangMemoizer> 
     }
 }
 
-/// Message content query.
+/// Message content query
 ///
 /// Provides access to message content according to the given components.
 #[derive(TypedBuilder)]

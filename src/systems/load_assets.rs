@@ -11,5 +11,5 @@ pub(crate) fn load_assets(
     let path = Path::new(&settings.locale_folder);
     handles.0 = asset_server
         .load_folder(path)
-        .expect("load `assets/locales` folder");
+        .expect("load assets from `assets/locales` folder");
 }

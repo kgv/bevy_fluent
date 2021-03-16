@@ -4,7 +4,9 @@ use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 use unic_langid::LanguageIdentifier;
 
-/// Snapshot.
+/// Snapshot
+///
+/// Note: if locale fallback chain is empty then it is interlocale bundle.
 pub struct Snapshot(
     HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
 );
@@ -18,9 +20,9 @@ impl Snapshot {
 impl FromWorld for Snapshot {
     fn from_world(world: &mut World) -> Self {
         #[cfg(feature = "implicit")]
-        let bundles = implicit::bundles(world);
+        let bundles = implicit::retrieve_bundles(world);
         #[cfg(not(feature = "implicit"))]
-        let bundles = explicit::bundles(world);
+        let bundles = explicit::retrieve_bundles(world);
         debug!("`Snapshot` is initialized");
         Snapshot(bundles)
     }
@@ -37,10 +39,11 @@ impl Deref for Snapshot {
 
 #[cfg(feature = "implicit")]
 mod implicit {
-    use crate::{assets::Resource, resources::Settings};
+    use crate::{resources::Settings, FluentAsset};
     use bevy::{
         asset::{AssetPath, AssetServerSettings},
         prelude::*,
+        utils::tracing::{self, instrument},
     };
     use fluent::{bundle::FluentBundle, FluentResource};
     use intl_memoizer::concurrent::IntlLangMemoizer;
@@ -48,29 +51,52 @@ mod implicit {
     use unic_langid::LanguageIdentifier;
     use walkdir::WalkDir;
 
-    pub(super) fn bundles(
+    #[instrument(skip(world))]
+    pub(super) fn retrieve_bundles(
         world: &mut World,
     ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
     {
+        let AssetServerSettings { asset_folder } = world
+            .get_resource::<AssetServerSettings>()
+            .expect("get AssetServerSettings resource");
+        let Settings { locale_folder, .. } = world
+            .get_resource::<Settings>()
+            .expect("get Settings resource");
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("get AssetServer resource");
-        let asset_server_settings = world
-            .get_resource::<AssetServerSettings>()
-            .expect("get AssetServerSettings resource");
-        let settings = world
-            .get_resource::<Settings>()
-            .expect("get Settings resource");
-        let resource_assets = world
-            .get_resource::<Assets<Resource>>()
+        let fluent_assets = world
+            .get_resource::<Assets<FluentAsset>>()
             .expect("get `Assets<Resource>` resource");
-
-        retrieve_resources(
-            &asset_server,
-            &asset_server_settings.asset_folder,
-            &settings.locale_folder,
-            &resource_assets,
-        )
+        let mut bundles = HashMap::new();
+        for entry in WalkDir::new(Path::new(asset_folder).join(locale_folder)) {
+            match entry {
+                Ok(entry) => {
+                    let mut path = entry.path();
+                    if path.extension() == Some(OsStr::new("ftl")) {
+                        path = path.strip_prefix(asset_folder).unwrap();
+                        let asset_path = AssetPath::new(path.to_path_buf(), None);
+                        let handle: Handle<FluentAsset> = asset_server.get_handle(asset_path);
+                        path = path.strip_prefix(locale_folder).unwrap();
+                        let locale = parse_locale(path);
+                        let fluent_bundle = bundles.entry(locale.clone()).or_insert_with(|| {
+                            FluentBundle::new_concurrent(locale.into_iter().collect())
+                        });
+                        if let Some(asset) = fluent_assets.get(handle) {
+                            if let Err(errors) = fluent_bundle.add_resource(asset.0.clone()) {
+                                warn_span!("add_resource").in_scope(|| {
+                                    for error in errors {
+                                        warn!(%error);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+                Err(error) => error!(%error),
+            }
+        }
+        bundles
     }
 
     fn parse_locale(path: &Path) -> Option<LanguageIdentifier> {
@@ -96,52 +122,12 @@ mod implicit {
         }
         Some(parent)
     }
-
-    fn retrieve_resources(
-        asset_server: &AssetServer,
-        asset_folder: &str,
-        locale_folder: &str,
-        resource_assets: &Assets<Resource>,
-    ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
-    {
-        let mut fluent_bundles = HashMap::new();
-        for entry in WalkDir::new(Path::new(asset_folder).join(locale_folder)) {
-            match entry {
-                Ok(entry) => {
-                    let mut path = entry.path();
-                    if path.extension() == Some(OsStr::new("ftl")) {
-                        path = path.strip_prefix(asset_folder).unwrap();
-                        let asset_path = AssetPath::new(path.to_path_buf(), None);
-                        let handle: Handle<Resource> = asset_server.get_handle(asset_path);
-                        path = path.strip_prefix(locale_folder).unwrap();
-                        let locale = parse_locale(path);
-                        let fluent_bundle =
-                            fluent_bundles.entry(locale.clone()).or_insert_with(|| {
-                                FluentBundle::new_concurrent(locale.into_iter().collect())
-                            });
-
-                        if let Some(resource) = resource_assets.get(handle) {
-                            if let Err(errors) = fluent_bundle.add_resource(resource.0.clone()) {
-                                warn_span!("add_resource").in_scope(|| {
-                                    for error in errors {
-                                        warn!(%error);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-                Err(error) => error!(%error),
-            }
-        }
-        fluent_bundles
-    }
 }
 
 #[cfg(not(feature = "implicit"))]
 mod explicit {
     use crate::{
-        assets::{Bundle, Resource},
+        assets::{FluentAsset, LocaleAssets},
         resources::Settings,
     };
     use bevy::{
@@ -155,64 +141,26 @@ mod explicit {
     use unic_langid::LanguageIdentifier;
     use walkdir::WalkDir;
 
-    #[instrument(level = "debug", skip(world))]
-    pub(super) fn bundles(
+    #[instrument(skip(world))]
+    pub(super) fn retrieve_bundles(
         world: &mut World,
     ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
     {
+        let AssetServerSettings { asset_folder } = world
+            .get_resource::<AssetServerSettings>()
+            .expect("get `AssetServerSettings` resource");
+        let Settings { locale_folder, .. } = world
+            .get_resource::<Settings>()
+            .expect("get `Settings` resource");
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("get `AssetServer` resource");
-        let asset_server_settings = world
-            .get_resource::<AssetServerSettings>()
-            .expect("get `AssetServerSettings` resource");
-        let bundle_assets = world
-            .get_resource::<Assets<Bundle>>()
-            .expect("get `Assets<Bundle>` resource");
-        let resource_assets = world
-            .get_resource::<Assets<Resource>>()
+        let fluent_assets = world
+            .get_resource::<Assets<FluentAsset>>()
             .expect("get `Assets<Resource>` resource");
-        let settings = world
-            .get_resource::<Settings>()
-            .expect("get `Settings` resource");
-
-        let bundles = retrieve_bundles(
-            asset_server,
-            &asset_server_settings.asset_folder,
-            &settings.locale_folder,
-        );
-        let mut fluent_bundles = HashMap::new();
-        for (locale, handle) in bundles.iter() {
-            if let Some(bundle) = bundle_assets.get(handle) {
-                let mut fluent_bundle =
-                    FluentBundle::new_concurrent(locale.iter().cloned().collect());
-                for handle in &bundle.0 {
-                    if let Some(resource) = resource_assets.get(handle) {
-                        if let Err(errors) = fluent_bundle.add_resource(resource.0.clone()) {
-                            warn_span!("add_resource").in_scope(|| {
-                                for error in errors {
-                                    warn!(%error);
-                                }
-                            });
-                        }
-                    }
-                }
-                fluent_bundles.insert(locale.clone(), fluent_bundle);
-            }
-        }
-        fluent_bundles
-    }
-
-    fn parse_locale(path: &Path) -> Option<LanguageIdentifier> {
-        path.iter().rev().nth(1)?.to_str()?.parse().ok()
-    }
-
-    #[instrument(level = "debug", skip(asset_server))]
-    fn retrieve_bundles(
-        asset_server: &AssetServer,
-        asset_folder: &str,
-        locale_folder: &str,
-    ) -> HashMap<Option<LanguageIdentifier>, Handle<Bundle>> {
+        let locale_assets = world
+            .get_resource::<Assets<LocaleAssets>>()
+            .expect("get `Assets<Bundle>` resource");
         let mut bundles = HashMap::new();
         for entry in WalkDir::new(Path::new(asset_folder).join(locale_folder)) {
             match entry {
@@ -220,20 +168,44 @@ mod explicit {
                     let mut path = entry.path();
                     if path.file_name() == Some(OsStr::new("locale.ron")) {
                         trace!("retrieve bundle: {:?}", entry);
-                        // Hierarchy starts with the
-                        // `asset_folder`/`locale_folder` directory.
-                        // So we can safe strip `asset_folder` at first
                         path = path.strip_prefix(asset_folder).unwrap();
-                        let handle = asset_server.load(path);
-                        // And then safe strip `locale_folder`.
+                        let handle: Handle<LocaleAssets> = asset_server.load(path);
                         path = path.strip_prefix(locale_folder).unwrap();
                         let locale = parse_locale(path);
-                        bundles.insert(locale, handle);
+                        if let Some(locale_assets) = locale_assets.get(handle) {
+                            let bundle = build_bundle(fluent_assets, locale.clone(), locale_assets);
+                            bundles.insert(locale, bundle);
+                        }
                     }
                 }
                 Err(error) => error!(%error),
             }
         }
         bundles
+    }
+
+    #[instrument(skip(fluent_assets, locale_assets))]
+    fn build_bundle(
+        fluent_assets: &Assets<FluentAsset>,
+        locale: Option<LanguageIdentifier>,
+        locale_assets: &LocaleAssets,
+    ) -> FluentBundle<Arc<FluentResource>, IntlLangMemoizer> {
+        let mut fluent_bundle = FluentBundle::new_concurrent(locale.iter().cloned().collect());
+        for handle in locale_assets.iter() {
+            if let Some(fluent_asset) = fluent_assets.get(handle) {
+                if let Err(errors) = fluent_bundle.add_resource(fluent_asset.0.clone()) {
+                    warn_span!("add_resource").in_scope(|| {
+                        for error in errors {
+                            warn!(%error);
+                        }
+                    });
+                }
+            }
+        }
+        fluent_bundle
+    }
+
+    fn parse_locale(path: &Path) -> Option<LanguageIdentifier> {
+        path.iter().rev().nth(1)?.to_str()?.parse().ok()
     }
 }

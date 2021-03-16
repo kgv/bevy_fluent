@@ -21,20 +21,20 @@ async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'
             fluent_resource
         }
     };
-    load_context.set_default_asset(LoadedAsset::new(Resource(Arc::new(fluent_resource))));
+    load_context.set_default_asset(LoadedAsset::new(FluentAsset(Arc::new(fluent_resource))));
     Ok(())
 }
 
-/// `FluentResource` wrapper.
+/// `FluentResource` wrapper
 ///
 /// # See Also
 ///
 /// [`FluentResource`](https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html).
 #[derive(Clone, Debug, TypeUuid)]
 #[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
-pub struct Resource(pub(crate) Arc<FluentResource>);
+pub struct FluentAsset(pub(crate) Arc<FluentResource>);
 
-impl Deref for Resource {
+impl Deref for FluentAsset {
     type Target = FluentResource;
 
     fn deref(&self) -> &Self::Target {
@@ -42,17 +42,17 @@ impl Deref for Resource {
     }
 }
 
-/// Resource loader.
+/// [`AssetLoader`] implementation for [`FluentAsset`]
 #[derive(Default)]
-pub struct Loader;
+pub struct FluentAssetLoader;
 
-impl AssetLoader for Loader {
+impl AssetLoader for FluentAssetLoader {
     fn load<'a>(
         &'a self,
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load_resource(bytes, load_context).await })
+        Box::pin(async move { load_asset(bytes, load_context).await })
     }
 
     fn extensions(&self) -> &[&str] {

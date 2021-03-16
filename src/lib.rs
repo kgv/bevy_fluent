@@ -1,33 +1,16 @@
 //! Bevy plugin for localization using Fluent.
-//!
-//! # Definitions
-//!
-//! Fluent:
-//!
-//! The basic unit of translation in Fluent is called a ***message***. Each
-//! message has an ***identifier***. *Messages* (and terms, variants,
-//! attributes) store their values as ***patterns***.
-//!
-//! Local:
-//!
-//! Formated *pattern* are called ***content***. ***Query*** provides access to
-//! *content* according to the given components.
 
 #![feature(iter_intersperse)]
 
 #[cfg(not(feature = "implicit"))]
+#[doc(inline)]
+pub use self::assets::{locale::LocaleAssetsLoader, LocaleAssets};
 #[doc(no_inline)]
-pub use self::assets::{bundle::Loader as BundleAssetLoader, Bundle as BundleAsset};
-#[doc(no_inline)]
-pub use self::{
-    assets::{resource::Loader as ResourceAssetLoader, Resource as ResourceAsset},
-    resources::{Settings as SettingsResource, Snapshot as SnapshotResource},
-};
-
+pub use self::resources::{Settings as SettingsResource, Snapshot as SnapshotResource};
 #[doc(inline)]
 pub use self::{
+    assets::{fluent::FluentAssetLoader, FluentAsset},
     prelude::*,
-    resources::{Settings, Snapshot},
 };
 
 /// `use bevy_fluent::prelude::*;` to import common assets, resources and plugins

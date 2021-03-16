@@ -4,6 +4,7 @@ use bevy::{
 };
 use std::marker::PhantomData;
 
+/// Extension methods for [`Commands`](bevy::ecs::system::Commands)
 pub trait CommandsExt {
     fn init_resource<T: Component + FromWorld>(&mut self) -> &mut Self;
 }

@@ -1,4 +1,4 @@
-use super::Resource;
+use super::FluentAsset;
 use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
@@ -8,7 +8,7 @@ use bevy::{
 };
 use std::{ops::Deref, path::PathBuf, str};
 
-async fn load_bundle<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
+async fn load_assets<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
     let paths = ron::de::from_bytes::<Vec<PathBuf>>(bytes)?;
     let mut handles = Vec::new();
     let mut asset_paths = Vec::new();
@@ -23,32 +23,30 @@ async fn load_bundle<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<
         handles.push(handle);
     }
     load_context
-        .set_default_asset(LoadedAsset::new(Bundle(handles)).with_dependencies(asset_paths));
+        .set_default_asset(LoadedAsset::new(LocaleAssets(handles)).with_dependencies(asset_paths));
     Ok(())
 }
 
-/// `FluentBundle` wrapper.
-///
-/// Note: if locale fallback chain is empty then it is interlocale bundle.
+/// Collection of [`FluentAsset`]'s handles for single locale
 ///
 /// # See Also
 ///
 /// [`FluentBundle`](https://docs.rs/fluent/0.15.0/fluent/bundle/struct.FluentBundle.html).
 #[derive(Clone, Debug, TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
-pub struct Bundle(pub(crate) Vec<Handle<Resource>>);
+pub struct LocaleAssets(Vec<Handle<FluentAsset>>);
 
-/// Bundle loader.
+/// [`AssetLoader`] implementation for [`LocaleAssets`]
 #[derive(Default)]
-pub struct Loader;
+pub struct LocaleAssetsLoader;
 
-impl AssetLoader for Loader {
+impl AssetLoader for LocaleAssetsLoader {
     fn load<'a>(
         &'a self,
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load_bundle(bytes, load_context).await })
+        Box::pin(async move { load_assets(bytes, load_context).await })
     }
 
     fn extensions(&self) -> &[&str] {
@@ -56,8 +54,8 @@ impl AssetLoader for Loader {
     }
 }
 
-impl Deref for Bundle {
-    type Target = Vec<Handle<Resource>>;
+impl Deref for LocaleAssets {
+    type Target = Vec<Handle<FluentAsset>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
