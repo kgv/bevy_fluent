@@ -13,13 +13,21 @@ categories = ["games", "game-development", "internationalization", "localization
 
 [dependencies]
 anyhow = "1.0.38"
-bevy = "0.4.0"
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false }
 fluent = "0.15.0"
 fluent-syntax = "0.11.0"
 intl-memoizer = "0.5.1"
-log = "0.4.14"
 ron = "0.6.4"
 serde = { version = "1.0.123", features = ["derive"] }
 thiserror = "1.0.23"
 typed-builder = "0.9.0"
-unic-langid = { version = "0.9.0", features = ["serde"] }
+unic-langid = { version = "0.9.0", features = ["macros", "serde"] }
+walkdir = "2.3.1"
+
+[dev-dependencies]
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false, features = ["bevy_winit"] }
+
+[features]
+default = []
+# default = ["implicit"]
+implicit = []

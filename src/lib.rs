@@ -13,17 +13,38 @@
 //! Formated *pattern* are called ***content***. ***Query*** provides access to
 //! *content* according to the given components.
 
-#[doc(inline)]
+#![feature(iter_intersperse)]
+
+#[cfg(not(feature = "implicit"))]
+#[doc(no_inline)]
+pub use self::assets::{bundle::Loader as BundleAssetLoader, Bundle as BundleAsset};
+#[doc(no_inline)]
 pub use self::{
-    assets::{
-        bundle::{Loader as BundleAssetLoader, Query},
-        resource::Loader as ResourceAssetLoader,
-        Bundle as BundleAsset, Resource as ResourceAsset,
-    },
-    error::{Error, Result},
-    plugins::Fluent as FluentPlugin,
+    assets::{resource::Loader as ResourceAssetLoader, Resource as ResourceAsset},
+    resources::{Settings as SettingsResource, Snapshot as SnapshotResource},
 };
 
+#[doc(inline)]
+pub use self::{
+    prelude::*,
+    resources::{Settings, Snapshot},
+};
+
+pub(crate) use self::error::Error;
+
+pub mod prelude {
+    #[doc(inline)]
+    pub use super::{
+        plugins::FluentPlugin, resources::Settings as FluentSettings,
+        utils::bundle::Query as FluentQuery,
+    };
+}
+
 pub mod assets;
-pub mod error;
 pub mod plugins;
+pub mod resources;
+pub mod utils;
+
+mod error;
+mod states;
+mod systems;

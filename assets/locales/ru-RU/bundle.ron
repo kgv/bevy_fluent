@@ -1,7 +1,0 @@
-(
-    locales: ["ru-RU"],
-    resources: [
-        "one.ftl",
-        "two.ftl",
-    ],
-)

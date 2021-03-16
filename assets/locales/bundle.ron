@@ -1,6 +1,0 @@
-(
-    locales: [],
-    resources: [
-        "interlocale.ftl",
-    ],
-)
