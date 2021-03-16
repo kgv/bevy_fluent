@@ -1,4 +1,3 @@
-use crate::Error;
 use bevy::prelude::*;
 use fluent::{bundle::FluentBundle, FluentArgs, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
@@ -21,9 +20,11 @@ impl<T: Borrow<FluentResource>> BundleExt for FluentBundle<T, IntlLangMemoizer> 
         let content = self
             .format_pattern(pattern, query.args.as_ref(), &mut errors)
             .to_string();
-        if !errors.is_empty() {
-            error!("{}", Error::FormatPattern(errors));
-        }
+        error_span!("format_pattern").in_scope(|| {
+            for error in errors {
+                error!(%error);
+            }
+        });
         Some(content)
     }
 }

@@ -30,8 +30,7 @@ pub use self::{
     resources::{Settings, Snapshot},
 };
 
-pub(crate) use self::error::Error;
-
+/// `use bevy_fluent::prelude::*;` to import common assets, resources and plugins
 pub mod prelude {
     #[doc(inline)]
     pub use super::{
@@ -45,6 +44,5 @@ pub mod plugins;
 pub mod resources;
 pub mod utils;
 
-mod error;
 mod states;
 mod systems;

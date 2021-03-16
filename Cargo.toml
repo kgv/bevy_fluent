@@ -19,7 +19,6 @@ fluent-syntax = "0.11.0"
 intl-memoizer = "0.5.1"
 ron = "0.6.4"
 serde = { version = "1.0.123", features = ["derive"] }
-thiserror = "1.0.23"
 typed-builder = "0.9.0"
 unic-langid = { version = "0.9.0", features = ["macros", "serde"] }
 walkdir = "2.3.1"
@@ -28,6 +27,6 @@ walkdir = "2.3.1"
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false, features = ["bevy_winit"] }
 
 [features]
-default = []
-# default = ["implicit"]
+# default = []
+default = ["implicit"]
 implicit = []

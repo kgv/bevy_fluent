@@ -37,7 +37,7 @@ impl Deref for Snapshot {
 
 #[cfg(feature = "implicit")]
 mod implicit {
-    use crate::{assets::Resource, resources::Settings, Error};
+    use crate::{assets::Resource, resources::Settings};
     use bevy::{
         asset::{AssetPath, AssetServerSettings},
         prelude::*,
@@ -121,13 +121,17 @@ mod implicit {
                             });
 
                         if let Some(resource) = resource_assets.get(handle) {
-                            if let Err(error) = fluent_bundle.add_resource(resource.0.clone()) {
-                                warn!("override fluent message: {}", Error::AddResource(error));
+                            if let Err(errors) = fluent_bundle.add_resource(resource.0.clone()) {
+                                warn_span!("add_resource").in_scope(|| {
+                                    for error in errors {
+                                        warn!(%error);
+                                    }
+                                });
                             }
                         }
                     }
                 }
-                Err(err) => error!("{}", err),
+                Err(error) => error!(%error),
             }
         }
         fluent_bundles
@@ -139,15 +143,19 @@ mod explicit {
     use crate::{
         assets::{Bundle, Resource},
         resources::Settings,
-        Error,
     };
-    use bevy::{asset::AssetServerSettings, prelude::*};
+    use bevy::{
+        asset::AssetServerSettings,
+        prelude::*,
+        utils::tracing::{self, instrument},
+    };
     use fluent::{bundle::FluentBundle, FluentResource};
     use intl_memoizer::concurrent::IntlLangMemoizer;
     use std::{collections::HashMap, ffi::OsStr, path::Path, sync::Arc};
     use unic_langid::LanguageIdentifier;
     use walkdir::WalkDir;
 
+    #[instrument(level = "debug", skip(world))]
     pub(super) fn bundles(
         world: &mut World,
     ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
@@ -180,8 +188,12 @@ mod explicit {
                     FluentBundle::new_concurrent(locale.iter().cloned().collect());
                 for handle in &bundle.0 {
                     if let Some(resource) = resource_assets.get(handle) {
-                        if let Err(error) = fluent_bundle.add_resource(resource.0.clone()) {
-                            warn!("override fluent message: {}", Error::AddResource(error));
+                        if let Err(errors) = fluent_bundle.add_resource(resource.0.clone()) {
+                            warn_span!("add_resource").in_scope(|| {
+                                for error in errors {
+                                    warn!(%error);
+                                }
+                            });
                         }
                     }
                 }
@@ -195,6 +207,7 @@ mod explicit {
         path.iter().rev().nth(1)?.to_str()?.parse().ok()
     }
 
+    #[instrument(level = "debug", skip(asset_server))]
     fn retrieve_bundles(
         asset_server: &AssetServer,
         asset_folder: &str,
@@ -206,14 +219,19 @@ mod explicit {
                 Ok(entry) => {
                     let mut path = entry.path();
                     if path.file_name() == Some(OsStr::new("locale.ron")) {
+                        trace!("retrieve bundle: {:?}", entry);
+                        // Hierarchy starts with the
+                        // `asset_folder`/`locale_folder` directory.
+                        // So we can safe strip `asset_folder` at first
                         path = path.strip_prefix(asset_folder).unwrap();
                         let handle = asset_server.load(path);
+                        // And then safe strip `locale_folder`.
                         path = path.strip_prefix(locale_folder).unwrap();
                         let locale = parse_locale(path);
                         bundles.insert(locale, handle);
                     }
                 }
-                Err(err) => error!("{}", err),
+                Err(error) => error!(%error),
             }
         }
         bundles

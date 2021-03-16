@@ -1,4 +1,3 @@
-use crate::Error;
 use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, LoadContext, LoadedAsset},
@@ -9,15 +8,16 @@ use bevy::{
 use fluent::FluentResource;
 use std::{ops::Deref, str, sync::Arc};
 
-async fn load_resource<'a, 'b>(
-    bytes: &'a [u8],
-    load_context: &'a mut LoadContext<'b>,
-) -> Result<()> {
+async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
     let source = str::from_utf8(bytes)?.to_string();
     let fluent_resource = match FluentResource::try_new(source) {
         Ok(fluent_resource) => fluent_resource,
         Err((fluent_resource, errors)) => {
-            error!("{}", Error::ParseResource(errors));
+            error_span!("try_new").in_scope(|| {
+                for error in errors {
+                    error!(%error);
+                }
+            });
             fluent_resource
         }
     };
