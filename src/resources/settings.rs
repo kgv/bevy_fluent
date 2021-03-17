@@ -3,11 +3,15 @@ use unic_langid::{langid, LanguageIdentifier};
 /// Settings
 #[derive(Clone, Debug)]
 pub struct Settings {
+    /// The locale to use as the default in your application
     pub default_locale: Option<LanguageIdentifier>,
-    /// Folder relative to the
+    /// The fallback locale chain you want to use in your application
+    pub fallback_locale_chain: Vec<LanguageIdentifier>,
+    /// Root folder for all locales
+    ///
+    /// Is a subfolder of
     /// [`AssetServerSettings.asset_folder`](bevy::asset::AssetServerSettings.asset_folder)
-    pub locale_folder: String,
-    pub requested_locales: Vec<LanguageIdentifier>,
+    pub locales_folder: String,
 }
 
 impl Settings {
@@ -18,16 +22,19 @@ impl Settings {
         }
     }
 
-    pub fn with_locale_folder<T: ToString>(self, locale_folder: T) -> Self {
+    pub fn with_fallback_locale_chain(
+        self,
+        fallback_locale_chain: Vec<LanguageIdentifier>,
+    ) -> Self {
         Self {
-            locale_folder: locale_folder.to_string(),
+            fallback_locale_chain,
             ..self
         }
     }
 
-    pub fn with_requested_locales(self, requested_locales: Vec<LanguageIdentifier>) -> Self {
+    pub fn with_locales_folder<T: ToString>(self, locales_folder: T) -> Self {
         Self {
-            requested_locales,
+            locales_folder: locales_folder.to_string(),
             ..self
         }
     }
@@ -37,8 +44,8 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             default_locale: Some(langid!("en-US")),
-            locale_folder: "locales".to_string(),
-            requested_locales: Vec::new(),
+            fallback_locale_chain: Vec::new(),
+            locales_folder: "locales".to_string(),
         }
     }
 }

@@ -8,7 +8,7 @@ pub(crate) fn load_assets(
     settings: Res<Settings>,
 ) {
     debug!("load assets");
-    let path = Path::new(&settings.locale_folder);
+    let path = Path::new(&settings.locales_folder);
     handles.0 = asset_server
         .load_folder(path)
         .expect("load assets from `assets/locales` folder");

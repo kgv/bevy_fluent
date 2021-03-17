@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use fluent::{bundle::FluentBundle, FluentResource};
+use fluent_langneg::{negotiate_languages, NegotiationStrategy};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 use unic_langid::LanguageIdentifier;
@@ -59,7 +60,7 @@ mod implicit {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get AssetServerSettings resource");
-        let Settings { locale_folder, .. } = world
+        let Settings { locales_folder, .. } = world
             .get_resource::<Settings>()
             .expect("get Settings resource");
         let asset_server = world
@@ -69,7 +70,7 @@ mod implicit {
             .get_resource::<Assets<FluentAsset>>()
             .expect("get `Assets<Resource>` resource");
         let mut bundles = HashMap::new();
-        for entry in WalkDir::new(Path::new(asset_folder).join(locale_folder)) {
+        for entry in WalkDir::new(Path::new(asset_folder).join(locales_folder)) {
             match entry {
                 Ok(entry) => {
                     let mut path = entry.path();
@@ -77,7 +78,7 @@ mod implicit {
                         path = path.strip_prefix(asset_folder).unwrap();
                         let asset_path = AssetPath::new(path.to_path_buf(), None);
                         let handle: Handle<FluentAsset> = asset_server.get_handle(asset_path);
-                        path = path.strip_prefix(locale_folder).unwrap();
+                        path = path.strip_prefix(locales_folder).unwrap();
                         let locale = parse_locale(path);
                         let fluent_bundle = bundles.entry(locale.clone()).or_insert_with(|| {
                             FluentBundle::new_concurrent(locale.into_iter().collect())
@@ -149,7 +150,11 @@ mod explicit {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get `AssetServerSettings` resource");
-        let Settings { locale_folder, .. } = world
+        let Settings {
+            fallback_locale_chain,
+            locales_folder,
+            ..
+        } = world
             .get_resource::<Settings>()
             .expect("get `Settings` resource");
         let asset_server = world
@@ -162,7 +167,7 @@ mod explicit {
             .get_resource::<Assets<LocaleAssets>>()
             .expect("get `Assets<Bundle>` resource");
         let mut bundles = HashMap::new();
-        for entry in WalkDir::new(Path::new(asset_folder).join(locale_folder)) {
+        for entry in WalkDir::new(Path::new(asset_folder).join(locales_folder)) {
             match entry {
                 Ok(entry) => {
                     let mut path = entry.path();
@@ -170,7 +175,7 @@ mod explicit {
                         trace!("retrieve bundle: {:?}", entry);
                         path = path.strip_prefix(asset_folder).unwrap();
                         let handle: Handle<LocaleAssets> = asset_server.load(path);
-                        path = path.strip_prefix(locale_folder).unwrap();
+                        path = path.strip_prefix(locales_folder).unwrap();
                         let locale = parse_locale(path);
                         if let Some(locale_assets) = locale_assets.get(handle) {
                             let bundle = build_bundle(fluent_assets, locale.clone(), locale_assets);
