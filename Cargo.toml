@@ -24,7 +24,7 @@ unic-langid = { version = "0.9.0", features = ["macros", "serde"] }
 walkdir = "2.3.1"
 
 [dev-dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false, features = ["bevy_winit"] }
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false, features = ["bevy_winit", "x11"] }
 
 [features]
 default = []

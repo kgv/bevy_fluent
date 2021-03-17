@@ -1,7 +1,5 @@
 //! Bevy plugin for localization using Fluent.
 
-#![feature(iter_intersperse)]
-
 #[cfg(not(feature = "implicit"))]
 #[doc(inline)]
 pub use self::assets::{locale::LocaleAssetsLoader, LocaleAssets};
