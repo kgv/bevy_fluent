@@ -1,9 +1,48 @@
-use bevy::prelude::*;
+use crate::{resources::Settings, FluentAsset};
+use bevy::{
+    prelude::*,
+    utils::tracing::{self, instrument},
+};
 use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_langneg::{negotiate_languages, NegotiationStrategy};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::{collections::HashMap, ops::Deref, sync::Arc};
 use unic_langid::LanguageIdentifier;
+
+#[instrument(skip(assets, handles))]
+fn build_bundle(
+    assets: &Assets<FluentAsset>,
+    handles: &[Handle<FluentAsset>],
+    locale: Option<LanguageIdentifier>,
+) -> FluentBundle<Arc<FluentResource>, IntlLangMemoizer> {
+    let mut fluent_bundle = FluentBundle::new_concurrent(locale.into_iter().collect());
+    for handle in handles {
+        let asset = assets.get(handle).unwrap();
+        if let Err(errors) = fluent_bundle.add_resource(asset.0.clone()) {
+            warn_span!("add_resource").in_scope(|| {
+                for error in errors {
+                    warn!(%error);
+                }
+            });
+        }
+    }
+    fluent_bundle
+}
+
+fn request_locales<'a>(
+    available_locales: &[&'a LanguageIdentifier],
+    default_locale: &'a Option<LanguageIdentifier>,
+    requested_locales: &[LanguageIdentifier],
+) -> Vec<&'a LanguageIdentifier> {
+    let default_locale = default_locale.as_ref();
+    let supported_locales = negotiate_languages(
+        requested_locales,
+        available_locales,
+        default_locale.as_ref(),
+        NegotiationStrategy::Filtering,
+    );
+    supported_locales.into_iter().copied().collect()
+}
 
 /// Snapshot
 ///
@@ -20,10 +59,42 @@ impl Snapshot {
 
 impl FromWorld for Snapshot {
     fn from_world(world: &mut World) -> Self {
+        let Settings {
+            default_locale,
+            fallback_locale_chain,
+            ..
+        } = world
+            .get_resource::<Settings>()
+            .expect("get `Settings` resource");
+        let fluent_assets = world
+            .get_resource::<Assets<FluentAsset>>()
+            .expect("get `Assets<Resource>` resource");
+
         #[cfg(feature = "implicit")]
-        let bundles = implicit::retrieve_bundles(world);
+        let available_locale_handles = implicit::retrieve_locale_handles(world);
         #[cfg(not(feature = "implicit"))]
-        let bundles = explicit::retrieve_bundles(world);
+        let available_locale_handles = explicit::retrieve_locale_handles(world);
+        let available_locales: Vec<_> = available_locale_handles.keys().flatten().collect();
+        let supported_locales =
+            request_locales(&available_locales, default_locale, fallback_locale_chain);
+        debug!(
+            available_locales =
+                ?|| -> Vec<_> { available_locales.iter().map(ToString::to_string).collect() }(),
+            supported_locales =
+                ?|| -> Vec<_> { supported_locales.iter().map(ToString::to_string).collect() }(),
+        );
+        let supported_locale_handles =
+            available_locale_handles
+                .iter()
+                .filter(|(locale, _)| match locale {
+                    None => true,
+                    Some(locale) => supported_locales.contains(&locale),
+                });
+        let mut bundles = HashMap::new();
+        for (locale, handles) in supported_locale_handles {
+            let bundle = build_bundle(fluent_assets, handles, locale.clone());
+            bundles.insert(locale.clone(), bundle);
+        }
         debug!("`Snapshot` is initialized");
         Snapshot(bundles)
     }
@@ -46,17 +117,14 @@ mod implicit {
         prelude::*,
         utils::tracing::{self, instrument},
     };
-    use fluent::{bundle::FluentBundle, FluentResource};
-    use intl_memoizer::concurrent::IntlLangMemoizer;
-    use std::{collections::HashMap, ffi::OsStr, path::Path, sync::Arc};
+    use std::{collections::HashMap, ffi::OsStr, path::Path};
     use unic_langid::LanguageIdentifier;
     use walkdir::WalkDir;
 
     #[instrument(skip(world))]
-    pub(super) fn retrieve_bundles(
-        world: &mut World,
-    ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
-    {
+    pub(super) fn retrieve_locale_handles(
+        world: &World,
+    ) -> HashMap<Option<LanguageIdentifier>, Vec<Handle<FluentAsset>>> {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get AssetServerSettings resource");
@@ -66,42 +134,32 @@ mod implicit {
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("get AssetServer resource");
-        let fluent_assets = world
-            .get_resource::<Assets<FluentAsset>>()
-            .expect("get `Assets<Resource>` resource");
-        let mut bundles = HashMap::new();
+        let mut locale_handles = HashMap::new();
         for entry in WalkDir::new(Path::new(asset_folder).join(locales_folder)) {
             match entry {
                 Ok(entry) => {
                     let mut path = entry.path();
                     if path.extension() == Some(OsStr::new("ftl")) {
                         path = path.strip_prefix(asset_folder).unwrap();
+                        trace!(?path);
                         let asset_path = AssetPath::new(path.to_path_buf(), None);
                         let handle: Handle<FluentAsset> = asset_server.get_handle(asset_path);
                         path = path.strip_prefix(locales_folder).unwrap();
                         let locale = parse_locale(path);
-                        let fluent_bundle = bundles.entry(locale.clone()).or_insert_with(|| {
-                            FluentBundle::new_concurrent(locale.into_iter().collect())
-                        });
-                        if let Some(asset) = fluent_assets.get(handle) {
-                            if let Err(errors) = fluent_bundle.add_resource(asset.0.clone()) {
-                                warn_span!("add_resource").in_scope(|| {
-                                    for error in errors {
-                                        warn!(%error);
-                                    }
-                                });
-                            }
-                        }
+                        locale_handles
+                            .entry(locale)
+                            .or_insert_with(Vec::new)
+                            .push(handle);
                     }
                 }
                 Err(error) => error!(%error),
             }
         }
-        bundles
+        locale_handles
     }
 
     fn parse_locale(path: &Path) -> Option<LanguageIdentifier> {
-        // UNSTABLE: https://github.com/rust-lang/rust/issues/68537
+        // TODO: https://github.com/rust-lang/rust/issues/68537
         let mut language_identifiers = path
             .iter()
             .map(|component| {
@@ -136,78 +194,46 @@ mod explicit {
         prelude::*,
         utils::tracing::{self, instrument},
     };
-    use fluent::{bundle::FluentBundle, FluentResource};
-    use intl_memoizer::concurrent::IntlLangMemoizer;
-    use std::{collections::HashMap, ffi::OsStr, path::Path, sync::Arc};
+    use std::{collections::HashMap, ffi::OsStr, path::Path};
     use unic_langid::LanguageIdentifier;
     use walkdir::WalkDir;
 
     #[instrument(skip(world))]
-    pub(super) fn retrieve_bundles(
-        world: &mut World,
-    ) -> HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>
-    {
+    pub(super) fn retrieve_locale_handles(
+        world: &World,
+    ) -> HashMap<Option<LanguageIdentifier>, Vec<Handle<FluentAsset>>> {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get `AssetServerSettings` resource");
-        let Settings {
-            fallback_locale_chain,
-            locales_folder,
-            ..
-        } = world
+        let Settings { locales_folder, .. } = world
             .get_resource::<Settings>()
             .expect("get `Settings` resource");
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("get `AssetServer` resource");
-        let fluent_assets = world
-            .get_resource::<Assets<FluentAsset>>()
-            .expect("get `Assets<Resource>` resource");
         let locale_assets = world
             .get_resource::<Assets<LocaleAssets>>()
             .expect("get `Assets<Bundle>` resource");
-        let mut bundles = HashMap::new();
+        let mut locale_handles = HashMap::new();
         for entry in WalkDir::new(Path::new(asset_folder).join(locales_folder)) {
             match entry {
                 Ok(entry) => {
                     let mut path = entry.path();
                     if path.file_name() == Some(OsStr::new("locale.ron")) {
-                        trace!("retrieve bundle: {:?}", entry);
                         path = path.strip_prefix(asset_folder).unwrap();
+                        trace!(?path);
                         let handle: Handle<LocaleAssets> = asset_server.load(path);
                         path = path.strip_prefix(locales_folder).unwrap();
                         let locale = parse_locale(path);
-                        if let Some(locale_assets) = locale_assets.get(handle) {
-                            let bundle = build_bundle(fluent_assets, locale.clone(), locale_assets);
-                            bundles.insert(locale, bundle);
-                        }
+                        let locale_assets = locale_assets.get(handle).unwrap();
+                        let handles = locale_assets.iter().cloned().collect();
+                        locale_handles.insert(locale, handles);
                     }
                 }
                 Err(error) => error!(%error),
             }
         }
-        bundles
-    }
-
-    #[instrument(skip(fluent_assets, locale_assets))]
-    fn build_bundle(
-        fluent_assets: &Assets<FluentAsset>,
-        locale: Option<LanguageIdentifier>,
-        locale_assets: &LocaleAssets,
-    ) -> FluentBundle<Arc<FluentResource>, IntlLangMemoizer> {
-        let mut fluent_bundle = FluentBundle::new_concurrent(locale.iter().cloned().collect());
-        for handle in locale_assets.iter() {
-            if let Some(fluent_asset) = fluent_assets.get(handle) {
-                if let Err(errors) = fluent_bundle.add_resource(fluent_asset.0.clone()) {
-                    warn_span!("add_resource").in_scope(|| {
-                        for error in errors {
-                            warn!(%error);
-                        }
-                    });
-                }
-            }
-        }
-        fluent_bundle
+        locale_handles
     }
 
     fn parse_locale(path: &Path) -> Option<LanguageIdentifier> {
