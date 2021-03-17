@@ -1,9 +1,9 @@
 # Bevy fluent
 
-[![continuous integration](https://github.com/kgv/bevy_fluent/workflows/CI/badge.svg)](https://github.com/kgv/bevy_fluent/actions)
 [![crates.io](https://img.shields.io/crates/v/bevy_fluent.svg)](https://crates.io/crates/bevy_fluent)
 [![docs.rs](https://docs.rs/bevy_fluent/badge.svg)](https://docs.rs/bevy_fluent)
 [![license](https://img.shields.io/crates/l/bevy_fluent)](#license)
+[![ci](https://github.com/kgv/bevy_fluent/workflows/ci/badge.svg)](https://github.com/kgv/bevy_fluent/actions)
 
 Bevy plugin for localization using Fluent.
 
