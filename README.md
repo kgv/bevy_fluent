@@ -60,6 +60,12 @@ Note that `locales/ru` directory does not contain the `locale.ron` file, so it
 is not *locale* directory. However, you can create a `locales/ru/locale.ron`
 file, which will add `ru` locale.
 
+## Todo
+
+- [ ] refactor assets retrieving using
+  [`get_handle_path`](https://docs.rs/bevy/0.4.0/bevy/asset/struct.AssetServer.html#method.get_handle_path)
+  ([pr](https://github.com/bevyengine/bevy/pull/1290)),
+
 ## See Also
 
 - [0.4 -> 0.5 Migration Guide](https://github.com/bevyengine/bevy/issues/1601)
