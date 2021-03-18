@@ -1,12 +1,13 @@
-use crate::{resources::Settings, FluentAsset};
+use crate::{resources::Settings, utils::BundleExt, FluentAsset, Request};
 use bevy::{
     prelude::*,
     utils::tracing::{self, instrument},
 };
 use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_langneg::{negotiate_languages, NegotiationStrategy};
+use indexmap::IndexMap;
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use std::{collections::HashMap, ops::Deref, sync::Arc};
+use std::{ops::Deref, sync::Arc};
 use unic_langid::LanguageIdentifier;
 
 #[instrument(skip(assets, handles))]
@@ -48,12 +49,33 @@ fn request_locales<'a>(
 ///
 /// Note: if locale fallback chain is empty then it is interlocale bundle.
 pub struct Snapshot(
-    HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
+    IndexMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
 );
 
 impl Snapshot {
     pub fn locales(&self) -> impl Iterator<Item = Option<&LanguageIdentifier>> {
         self.keys().map(Option::as_ref)
+    }
+}
+
+impl BundleExt for Snapshot {
+    #[instrument(skip(self))]
+    fn content(&self, request: &Request) -> Option<String> {
+        self.0
+            .iter()
+            .find_map(|(locale, bundle)| match bundle.content(request) {
+                None => {
+                    trace!(
+                        locale = ?|| -> Option<_> { locale.as_ref().map(ToString::to_string) }(),
+                        "skip"
+                    );
+                    None
+                }
+                Some(content) => {
+                    trace!(locale = ?|| -> Option<_> { locale.as_ref().map(ToString::to_string) }());
+                    Some(content)
+                }
+            })
     }
 }
 
@@ -71,29 +93,32 @@ impl FromWorld for Snapshot {
             .expect("get `Assets<Resource>` resource");
 
         #[cfg(feature = "implicit")]
-        let available_locale_handles = implicit::retrieve_locale_handles(world);
+        let locale_handles = implicit::retrieve_locale_handles(world);
         #[cfg(not(feature = "implicit"))]
-        let available_locale_handles = explicit::retrieve_locale_handles(world);
-        let available_locales: Vec<_> = available_locale_handles.keys().flatten().collect();
+        let locale_handles = explicit::retrieve_locale_handles(world);
+        let available_locales: Vec<_> = locale_handles.keys().flatten().collect();
         let supported_locales =
             request_locales(&available_locales, default_locale, fallback_locale_chain);
         debug!(
             available_locales =
                 ?|| -> Vec<_> { available_locales.iter().map(ToString::to_string).collect() }(),
+            requested_locales =
+                ?|| -> Vec<_> { fallback_locale_chain.iter().map(ToString::to_string).collect() }(),
+            default_locale = ?|| -> Option<_> { default_locale.as_ref().map(ToString::to_string) }(),
             supported_locales =
                 ?|| -> Vec<_> { supported_locales.iter().map(ToString::to_string).collect() }(),
         );
-        let supported_locale_handles =
-            available_locale_handles
-                .iter()
-                .filter(|(locale, _)| match locale {
-                    None => true,
-                    Some(locale) => supported_locales.contains(&locale),
-                });
-        let mut bundles = HashMap::new();
-        for (locale, handles) in supported_locale_handles {
+        let mut bundles = IndexMap::new();
+        let mut insert = |locale| {
+            let handles = &locale_handles[&locale];
             let bundle = build_bundle(fluent_assets, handles, locale.clone());
-            bundles.insert(locale.clone(), bundle);
+            bundles.insert(locale, bundle);
+        };
+        for locale in supported_locales.into_iter() {
+            insert(Some(locale.clone()));
+        }
+        if locale_handles.contains_key(&None) {
+            insert(None);
         }
         debug!("`Snapshot` is initialized");
         Snapshot(bundles)
@@ -102,7 +127,7 @@ impl FromWorld for Snapshot {
 
 impl Deref for Snapshot {
     type Target =
-        HashMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>;
+        IndexMap<Option<LanguageIdentifier>, FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0

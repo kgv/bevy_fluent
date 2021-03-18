@@ -33,7 +33,7 @@ impl<T: Borrow<FluentResource>> BundleExt for FluentBundle<T, IntlLangMemoizer> 
 /// Message content request
 ///
 /// Provides access to message content according to the given components.
-#[derive(TypedBuilder)]
+#[derive(Debug, TypedBuilder)]
 pub struct Request<'a> {
     #[builder(setter(into))]
     id: String,

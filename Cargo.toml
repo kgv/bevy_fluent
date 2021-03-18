@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2018"
 description = "Bevy plugin for localization using Fluent"
@@ -16,6 +16,7 @@ anyhow = "1.0.38"
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "284889c64b2a4a4f67018e42a14062392edbd0aa", default-features = false }
 fluent = "0.15.0"
 fluent-langneg = "0.13.0"
+indexmap = "1.6.1"
 intl-memoizer = "0.5.1"
 ron = "0.6.4"
 serde = { version = "1.0.123", features = ["derive"] }
