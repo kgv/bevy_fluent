@@ -8,8 +8,9 @@ readme = "README.md"
 homepage = "https://crates.io/crates/bevy_fluent"
 repository = "https://github.com/kgv/bevy_fluent"
 license = "MIT OR Apache-2.0"
-keywords = ["gamedev", "internationalization", "language", "localization", "plugin"]
+keywords = ["bevy", "gamedev", "internationalization", "localization", "plugin"]
 categories = ["games", "game-development", "internationalization", "localization"]
+exclude = [".github/**/*", "assets/**/*"]
 
 [dependencies]
 anyhow = "1.0.38"
