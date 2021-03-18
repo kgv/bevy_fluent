@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_fluent::{resources::Snapshot, utils::BundleExt, FluentPlugin, FluentSettings, Request};
+use bevy_fluent::{components::Snapshot, utils::BundleExt, FluentPlugin, FluentSettings, Request};
 use unic_langid::langid;
 
 pub fn main() {

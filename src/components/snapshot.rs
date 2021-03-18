@@ -1,4 +1,4 @@
-use crate::{resources::Settings, utils::BundleExt, FluentAsset, Request};
+use crate::{components::Settings, utils::BundleExt, FluentAsset, Request};
 use bevy::{
     prelude::*,
     utils::tracing::{self, instrument},
@@ -136,7 +136,7 @@ impl Deref for Snapshot {
 
 #[cfg(feature = "implicit")]
 mod implicit {
-    use crate::{resources::Settings, FluentAsset};
+    use crate::{components::Settings, FluentAsset};
     use bevy::{
         asset::{AssetPath, AssetServerSettings},
         prelude::*,
@@ -212,7 +212,7 @@ mod implicit {
 mod explicit {
     use crate::{
         assets::{FluentAsset, LocaleAssets},
-        resources::Settings,
+        components::Settings,
     };
     use bevy::{
         asset::AssetServerSettings,

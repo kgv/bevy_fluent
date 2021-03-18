@@ -1,4 +1,4 @@
-use crate::resources::{Handles, Settings};
+use crate::components::{Handles, Settings};
 use bevy::prelude::*;
 use std::path::Path;
 

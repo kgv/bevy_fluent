@@ -4,25 +4,26 @@
 #[doc(inline)]
 pub use self::assets::{locale::LocaleAssetsLoader, LocaleAssets};
 #[doc(no_inline)]
-pub use self::resources::{Settings as SettingsResource, Snapshot as SnapshotResource};
+pub use self::components::{Settings as SettingsComponent, Snapshot as SnapshotComponent};
 #[doc(inline)]
 pub use self::{
     assets::{fluent::FluentAssetLoader, FluentAsset},
     prelude::*,
 };
 
-/// `use bevy_fluent::prelude::*;` to import common assets, resources and plugins
+pub(crate) use self::components::State as StateComponent;
+
+/// `use bevy_fluent::prelude::*;` to import common assets, components and plugins
 pub mod prelude {
     #[doc(inline)]
     pub use super::{
-        plugins::FluentPlugin, resources::Settings as FluentSettings, utils::bundle::Request,
+        components::Settings as FluentSettings, plugins::FluentPlugin, utils::bundle::Request,
     };
 }
 
 pub mod assets;
+pub mod components;
 pub mod plugins;
-pub mod resources;
 pub mod utils;
 
-mod states;
 mod systems;

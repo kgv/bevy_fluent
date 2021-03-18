@@ -3,8 +3,7 @@
 //! Any entity located directly in this module is [`Plugin`](bevy::app::Plugin).
 
 use crate::{
-    resources::{Handles, Settings},
-    states::FluentState,
+    components::{Handles, Settings, State},
     systems::{check_assets, load_assets, snapshot},
     FluentAsset, FluentAssetLoader,
 };
@@ -26,15 +25,13 @@ impl Plugin for FluentPlugin {
         app.init_asset_loader::<FluentAssetLoader>()
             .add_asset::<FluentAsset>()
             .init_resource::<Handles>()
-            .add_state(FluentState::LoadAssets)
+            .add_state(State::LoadAssets)
             .add_system_set(
-                SystemSet::on_enter(FluentState::LoadAssets).with_system(load_assets.system()),
+                SystemSet::on_enter(State::LoadAssets).with_system(load_assets.system()),
             )
             .add_system_set(
-                SystemSet::on_update(FluentState::LoadAssets).with_system(check_assets.system()),
+                SystemSet::on_update(State::LoadAssets).with_system(check_assets.system()),
             )
-            .add_system_set(
-                SystemSet::on_enter(FluentState::Snapshot).with_system(snapshot.system()),
-            );
+            .add_system_set(SystemSet::on_enter(State::Snapshot).with_system(snapshot.system()));
     }
 }

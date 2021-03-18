@@ -1,8 +1,8 @@
-use crate::{resources::Snapshot, states::FluentState, utils::commands::CommandsExt};
+use crate::{components::Snapshot, utils::commands::CommandsExt, StateComponent};
 use bevy::prelude::*;
 
-pub(crate) fn snapshot(mut commands: Commands, mut state: ResMut<State<FluentState>>) {
+pub(crate) fn snapshot(mut commands: Commands, mut state: ResMut<State<StateComponent>>) {
     debug!("snapshot");
     commands.init_resource::<Snapshot>();
-    state.set_next(FluentState::Done).unwrap();
+    state.set_next(StateComponent::Done).unwrap();
 }
