@@ -6,20 +6,20 @@ use typed_builder::TypedBuilder;
 
 /// Extension methods for [`FluentBundle`](fluent::bundle::FluentBundle)
 pub trait BundleExt {
-    /// Get message content by query
-    fn content(&self, query: &Query) -> Option<String>;
+    /// Request message content
+    fn content(&self, request: &Request) -> Option<String>;
 }
 
 impl<T: Borrow<FluentResource>> BundleExt for FluentBundle<T, IntlLangMemoizer> {
-    fn content(&self, query: &Query) -> Option<String> {
-        let message = self.get_message(&query.id)?;
-        let pattern = match &query.attribute {
+    fn content(&self, request: &Request) -> Option<String> {
+        let message = self.get_message(&request.id)?;
+        let pattern = match &request.attribute {
             None => message.value()?,
             Some(key) => message.get_attribute(key)?.value(),
         };
         let mut errors = Vec::new();
         let content = self
-            .format_pattern(pattern, query.args.as_ref(), &mut errors)
+            .format_pattern(pattern, request.args.as_ref(), &mut errors)
             .to_string();
         error_span!("format_pattern").in_scope(|| {
             for error in errors {
@@ -30,11 +30,11 @@ impl<T: Borrow<FluentResource>> BundleExt for FluentBundle<T, IntlLangMemoizer> 
     }
 }
 
-/// Message content query
+/// Message content request
 ///
 /// Provides access to message content according to the given components.
 #[derive(TypedBuilder)]
-pub struct Query<'a> {
+pub struct Request<'a> {
     #[builder(setter(into))]
     id: String,
     #[builder(default, setter(into, strip_option))]

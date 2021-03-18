@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use bevy_fluent::{
-    resources::Snapshot, utils::BundleExt, FluentPlugin, FluentQuery, FluentSettings,
-};
+use bevy_fluent::{resources::Snapshot, utils::BundleExt, FluentPlugin, FluentSettings, Request};
 use unic_langid::langid;
 
 pub fn main() {
@@ -23,9 +21,9 @@ fn localized_hello_world(
         return;
     }
     if let Some(snapshot) = snapshot {
-        let query = FluentQuery::builder().id("hello-world").build();
+        let request = Request::builder().id("hello-world").build();
         let hello_world = snapshot[&fluent_settings.default_locale]
-            .content(&query)
+            .content(&request)
             .unwrap();
         println!("{}", hello_world);
         *done = true;

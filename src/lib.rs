@@ -15,8 +15,7 @@ pub use self::{
 pub mod prelude {
     #[doc(inline)]
     pub use super::{
-        plugins::FluentPlugin, resources::Settings as FluentSettings,
-        utils::bundle::Query as FluentQuery,
+        plugins::FluentPlugin, resources::Settings as FluentSettings, utils::bundle::Request,
     };
 }
 

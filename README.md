@@ -26,7 +26,7 @@ The basic unit of translation in Fluent is called a ***message***. Each
 
 Local:
 
-Formated *pattern* are called ***content***. ***Query*** provides access to
+Formated *pattern* are called ***content***. ***Request*** provides access to
 *content* according to the given components.
 
 ## Locales root directory hierarchy (`locales`)
