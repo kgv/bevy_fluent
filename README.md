@@ -6,59 +6,18 @@
 [![ci](https://github.com/kgv/bevy_fluent/workflows/ci/badge.svg)](https://github.com/kgv/bevy_fluent/actions)
 [![bevy tracking](https://img.shields.io/badge/bevy%20tracking-main-lightblue)](https://github.com/bevyengine/bevy/blob/master/docs/plugins_guidelines.md#master-branch-tracking)
 
-Bevy plugin for localization using Fluent.
+[Bevy][bevy] plugin for localization using [Fluent][fluent].
 
-## `Settings`
+## Documentation
 
-- `default_locale`
-- `locale_folder`
-- `requested_locales`
+[English 🇺🇸](DOCUMENTATION.en-US.md) | [Русский 🇷🇺](DOCUMENTATION.ru-RU.md)
 
-## Definitions
+## Version
 
-Fluent:
-
-- each `*.ftl` file is a resource.
-
-The basic unit of translation in Fluent is called a ***message***. Each
-*message* has an ***identifier***. *Messages* (and ***terms***, ***variants***,
-***attributes***) store their values as ***patterns***.
-
-Local:
-
-Formated *pattern* are called ***content***. ***Request*** provides access to
-*content* according to the given components.
-
-## Locales root directory hierarchy (`locales`)
-
-***Locale*** is a collection of `*.ftl` files. *Locale* represents a directory
-that meets the following criteria: name matches
-[standard][unicode_language_identifier], contains a `locale.ron` file. The
-`locale.ron` file contains a list of `*.ftl` files related to this *locale*. The
-files themselves are located in the hierarchy of the *locale* root directory.
-The `locale.ron` file, located in the `locales` root directory, represents an
-interlocale that contains language independent resources.
-
-Hierarchy example:
-
-```md
-locales
-    - en-US
-        locale.ron
-        ...
-    - ru
-        - ru-RU
-            locale.ron
-            ...
-        - ru-BY
-            locale.ron
-            ...
-    locale.ron
-```
-
-Note that `locales/ru` directory does not contain the `locale.ron` file, so it
-is not *locale* directory. However, you can create a `locales/ru/locale.ron`
-file, which will add `ru` locale.
+| bevy | bevy_fluent |
+| ---- | ----------- |
+| main | main        |
+| 0.4  | 0.0.1       |
 
 ## Todo
 
@@ -68,17 +27,29 @@ file, which will add `ru` locale.
 
 ## See Also
 
-- [0.4 -> 0.5 Migration Guide](https://github.com/bevyengine/bevy/issues/1601)
+- [Bevy][bevy] ❤️
+- [Bevy localisation plugin issue][bevy-localisation-plugin-issue]
 
-- [Issue](https://github.com/bevyengine/bevy/issues/461)
-- [Discussions](https://github.com/bevyengine/bevy/discussions/1345)
+***
 
-- [Fluent fallback](https://crates.io/crates/fluent_fallback)
-- [Fluent resource manager](https://crates.io/crates/fluent_resmgr)
-- [Message format 2.0`](https://github.com/zbraniecki/message-format-2.0-rs)
-- [L10nRegistry](https://github.com/zbraniecki/l10nregistry-rs)
+- [Fluent][fluent]
+- [Fluent fallback][fluent-fallback]
+- [Fluent language negotiation][fluent-langneg]
+- [Fluent message format 2.0](fluent-message-format-2.0)
+- [Fluent resource manager][fluent-resmgr]
+- [L10nRegistry][l10nregistry]
+
+***
 
 - [Locales](https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json)
-- [Unicode Language Identifier][unicode_language_identifier]
+- [Unicode Language Identifier][unicode-language-identifier]
 
-[unicode_language_identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier
+[bevy]: https://github.com/bevyengine/bevy
+[bevy-localisation-plugin-issue]: https://github.com/bevyengine/bevy/issues/461
+[fluent]: https://github.com/projectfluent/fluent-rs
+[fluent-fallback]: https://github.com/projectfluent/fluent-rs/tree/master/fluent-fallback
+[fluent-langneg]: https://github.com/projectfluent/fluent-langneg-rs
+[fluent-message-format-2.0]: https://github.com/zbraniecki/message-format-2.0-rs
+[fluent-resmgr]: https://github.com/projectfluent/fluent-rs/tree/master/fluent-resmgr
+[l10nregistry]: https://github.com/zbraniecki/l10nregistry-rs
+[unicode-language-identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier

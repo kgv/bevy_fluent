@@ -7,7 +7,7 @@ pub struct Settings {
     pub default_locale: Option<LanguageIdentifier>,
     /// The fallback locale chain you want to use in your application
     pub fallback_locale_chain: Vec<LanguageIdentifier>,
-    /// Root folder for all locales
+    /// The root folder for all locales
     ///
     /// Is a subfolder of
     /// [`AssetServerSettings.asset_folder`](bevy::asset::AssetServerSettings.asset_folder)
