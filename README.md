@@ -4,7 +4,7 @@
 [![docs.rs](https://docs.rs/bevy_fluent/badge.svg)](https://docs.rs/bevy_fluent)
 [![license](https://img.shields.io/crates/l/bevy_fluent)](#license)
 [![ci](https://github.com/kgv/bevy_fluent/workflows/ci/badge.svg)](https://github.com/kgv/bevy_fluent/actions)
-[![bevy tracking](https://img.shields.io/badge/bevy%20tracking-main-lightblue)](https://github.com/bevyengine/bevy/blob/master/docs/plugins_guidelines.md#master-branch-tracking)
+[![bevy tracking](https://img.shields.io/badge/bevy%20tracking-main-yellow)](https://github.com/bevyengine/bevy/blob/master/docs/plugins_guidelines.md#master-branch-tracking)
 
 [Bevy][bevy] plugin for localization using [Fluent][fluent].
 
@@ -14,10 +14,10 @@
 
 ## Version
 
-| bevy | bevy_fluent |
-| ---- | ----------- |
-| main | main        |
-| 0.4  | 0.0.1       |
+| bevy                                                                                       | bevy_fluent |
+| ------------------------------------------------------------------------------------------ | ----------- |
+| [main](https://github.com/bevyengine/bevy/commit/284889c64b2a4a4f67018e42a14062392edbd0aa) | main        |
+| 0.4                                                                                        | 0.0.1       |
 
 ## Todo
 

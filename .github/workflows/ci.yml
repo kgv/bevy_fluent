@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main, experimental]
+    branches: [debug, main, release]
   pull_request:
     branches: [main]
 
