@@ -3,8 +3,10 @@ use bevy::{
     app::{AppExit, Events},
     asset::LoadState,
     prelude::*,
+    utils::tracing::{self, instrument},
 };
 
+#[instrument(fields(handles = handles.len(), state = ?*state), skip(commands, asset_server, events))]
 pub(crate) fn check_assets(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -12,13 +14,13 @@ pub(crate) fn check_assets(
     handles: Res<Handles>,
     mut state: ResMut<State<StateComponent>>,
 ) {
-    debug!("check assets");
+    trace!("call");
     match asset_server.get_group_load_state(handles.iter().map(|handle| handle.id)) {
         LoadState::Failed => events.send(AppExit),
         LoadState::Loaded => {
-            debug!("assets are loaded");
+            debug!(load_state = ?LoadState::Loaded);
             commands.remove_resource::<Handles>();
-            state.set_next(StateComponent::Snapshot).unwrap();
+            state.set_next(StateComponent::TakeSnapshot).unwrap();
         }
         _ => {}
     }

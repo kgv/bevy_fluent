@@ -3,11 +3,15 @@ use bevy::{
     asset::{AssetLoader, LoadContext, LoadedAsset},
     prelude::*,
     reflect::TypeUuid,
-    utils::BoxedFuture,
+    utils::{
+        tracing::{self, instrument},
+        BoxedFuture,
+    },
 };
 use fluent::FluentResource;
 use std::{ops::Deref, str, sync::Arc};
 
+#[instrument(fields(load_context = %load_context.path().display()), skip(bytes))]
 async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
     let source = str::from_utf8(bytes)?.to_string();
     let fluent_resource = match FluentResource::try_new(source) {

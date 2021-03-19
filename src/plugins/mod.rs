@@ -3,8 +3,8 @@
 //! Any entity located directly in this module is [`Plugin`](bevy::app::Plugin).
 
 use crate::{
-    components::{Handles, Settings, State},
-    systems::{check_assets, load_assets, snapshot},
+    components::{Settings, State},
+    systems::{check_assets, init_resources, load_assets, take_snapshot},
     FluentAsset, FluentAssetLoader,
 };
 #[cfg(not(feature = "implicit"))]
@@ -24,14 +24,22 @@ impl Plugin for FluentPlugin {
             .add_asset::<LocaleAssets>();
         app.init_asset_loader::<FluentAssetLoader>()
             .add_asset::<FluentAsset>()
-            .init_resource::<Handles>()
-            .add_state(State::LoadAssets)
-            .add_system_set(
+            .add_state_to_stage(CoreStage::PreUpdate, State::InitResources)
+            .add_system_set_to_stage(
+                CoreStage::PreUpdate,
+                SystemSet::on_enter(State::InitResources).with_system(init_resources.system()),
+            )
+            .add_system_set_to_stage(
+                CoreStage::PreUpdate,
                 SystemSet::on_enter(State::LoadAssets).with_system(load_assets.system()),
             )
-            .add_system_set(
+            .add_system_set_to_stage(
+                CoreStage::PreUpdate,
                 SystemSet::on_update(State::LoadAssets).with_system(check_assets.system()),
             )
-            .add_system_set(SystemSet::on_enter(State::Snapshot).with_system(snapshot.system()));
+            .add_system_set_to_stage(
+                CoreStage::PreUpdate,
+                SystemSet::on_enter(State::TakeSnapshot).with_system(take_snapshot.system()),
+            );
     }
 }

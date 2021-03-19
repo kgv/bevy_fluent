@@ -7,7 +7,11 @@ use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_langneg::{negotiate_languages, NegotiationStrategy};
 use indexmap::IndexMap;
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use std::{ops::Deref, sync::Arc};
+use std::{
+    fmt::{self, Debug, Formatter},
+    ops::Deref,
+    sync::Arc,
+};
 use unic_langid::LanguageIdentifier;
 
 #[instrument(skip(assets, handles))]
@@ -122,6 +126,12 @@ impl FromWorld for Snapshot {
         }
         debug!("`Snapshot` is initialized");
         Snapshot(bundles)
+    }
+}
+
+impl Debug for Snapshot {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.debug_set().entries(self.locales()).finish()
     }
 }
 

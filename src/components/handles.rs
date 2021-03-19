@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use std::ops::Deref;
 
 /// Collection of any asset handles loaded from `assets/locales` directory
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub(crate) struct Handles(pub(crate) Vec<HandleUntyped>);
 
 impl Deref for Handles {
