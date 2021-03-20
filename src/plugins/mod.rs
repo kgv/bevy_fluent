@@ -4,7 +4,7 @@
 
 use crate::{
     components::{Settings, State},
-    systems::{check_assets, init_resources, load_assets, take_snapshot},
+    systems::{check_assets, load_assets, take_snapshot},
     FluentAsset, FluentAssetLoader,
 };
 #[cfg(not(feature = "implicit"))]
@@ -24,11 +24,7 @@ impl Plugin for FluentPlugin {
             .add_asset::<LocaleAssets>();
         app.init_asset_loader::<FluentAssetLoader>()
             .add_asset::<FluentAsset>()
-            .add_state_to_stage(CoreStage::PreUpdate, State::InitResources)
-            .add_system_set_to_stage(
-                CoreStage::PreUpdate,
-                SystemSet::on_enter(State::InitResources).with_system(init_resources.system()),
-            )
+            .add_state_to_stage(CoreStage::PreUpdate, State::LoadAssets)
             .add_system_set_to_stage(
                 CoreStage::PreUpdate,
                 SystemSet::on_enter(State::LoadAssets).with_system(load_assets.system()),
