@@ -36,7 +36,8 @@ async fn load_assets<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
 pub struct LocaleAssets(Vec<Handle<FluentAsset>>);
 
-/// [`AssetLoader`] implementation for [`LocaleAssets`]
+/// [`AssetLoader`](bevy::asset::AssetLoader) implementation for
+/// [`LocaleAssets`]
 #[derive(Default)]
 pub struct LocaleAssetsLoader;
 

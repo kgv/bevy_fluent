@@ -111,17 +111,17 @@ locales
     locale.ron
 ```
 
-[asset]: https://github.com/bevyengine/bevy
-[attribute]: https://github.com/bevyengine/bevy
-[content]: https://github.com/bevyengine/bevy
-[explicit]: https://github.com/bevyengine/bevy
-[identifier]: https://github.com/bevyengine/bevy
-[implicit]: https://github.com/bevyengine/bevy
-[locale-assets]: https://github.com/bevyengine/bevy
-[message]: https://github.com/bevyengine/bevy
-[pattern]: https://github.com/bevyengine/bevy
-[request]: https://github.com/bevyengine/bevy
-[term]: https://github.com/bevyengine/bevy
-[variant]: https://github.com/bevyengine/bevy
+[asset]: https://docs.rs/bevy_fluent/*/bevy_fluent/struct.FluentAsset.html
+[attribute]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Attribute.html
+[content]: https://docs.rs/bevy_fluent/*/bevy_fluent/utils/trait.BundleExt.html#tymethod.content
+[explicit]: https://docs.rs/crate/bevy_fluent/*/features#implicit
+[identifier]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Identifier.html
+[implicit]: https://docs.rs/crate/bevy_fluent/*/features#implicit
+[locale-assets]: https://docs.rs/bevy_fluent/*/bevy_fluent/struct.LocaleAssets.html
+[message]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Message.html
+[pattern]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Pattern.html
+[request]: https://docs.rs/bevy_fluent/*/bevy_fluent/struct.Request.html
+[term]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Term.html
+[variant]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Variant.html
 
 [unicode-language-identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier

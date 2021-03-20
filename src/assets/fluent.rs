@@ -42,7 +42,7 @@ impl Deref for FluentAsset {
     }
 }
 
-/// [`AssetLoader`] implementation for [`FluentAsset`]
+/// [`AssetLoader`](bevy::asset::AssetLoader) implementation for [`FluentAsset`]
 #[derive(Default)]
 pub struct FluentAssetLoader;
 
