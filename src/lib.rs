@@ -11,13 +11,14 @@ pub use self::{
     prelude::*,
 };
 
-pub(crate) use self::components::State as StateComponent;
+pub use self::components::State as StateComponent;
 
 /// `use bevy_fluent::prelude::*;` to import common assets, components and plugins
 pub mod prelude {
     #[doc(inline)]
     pub use super::{
-        components::Settings as FluentSettings, plugins::FluentPlugin, utils::bundle::Request,
+        components::Settings as FluentSettings, components::State as FluentState,
+        plugins::FluentPlugin, utils::bundle::Request,
     };
 }
 

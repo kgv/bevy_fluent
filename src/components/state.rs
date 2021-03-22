@@ -1,6 +1,6 @@
 /// State
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum State {
+pub enum State {
     LoadAssets,
     TakeSnapshot,
     Done,

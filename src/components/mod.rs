@@ -3,9 +3,9 @@
 //! Any entity located directly in this module is
 //! [`Component`](bevy::ecs::component::Component).
 
-pub use self::{settings::Settings, snapshot::Snapshot};
+pub use self::{settings::Settings, snapshot::Snapshot, state::State};
 
-pub(crate) use self::{handles::Handles, state::State};
+pub(crate) use self::handles::Handles;
 
 mod handles;
 mod settings;

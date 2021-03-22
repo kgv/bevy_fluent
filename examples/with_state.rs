@@ -1,5 +1,9 @@
 use bevy::prelude::*;
-use bevy_fluent::{components::Snapshot, utils::BundleExt, FluentPlugin, FluentSettings, Request};
+use bevy_fluent::{
+    components::{Snapshot, State as FluentState},
+    utils::BundleExt,
+    FluentPlugin, FluentSettings, Request,
+};
 use unic_langid::langid;
 
 pub fn main() {
@@ -9,7 +13,7 @@ pub fn main() {
         .add_plugin(FluentPlugin)
         .add_state(GameState::Initialize)
         .add_system_set(
-            SystemSet::on_update(GameState::Initialize).with_system(check_snapshot.system()),
+            SystemSet::on_update(GameState::Initialize).with_system(check_fluent_state.system()),
         )
         .add_system_set(
             SystemSet::on_enter(GameState::Play).with_system(localized_hello_world.system()),
@@ -17,9 +21,12 @@ pub fn main() {
         .run();
 }
 
-fn check_snapshot(snapshot: Option<Res<Snapshot>>, mut state: ResMut<State<GameState>>) {
-    if snapshot.is_some() {
-        state.set_next(GameState::Play).unwrap();
+fn check_fluent_state(
+    fluent_state: Res<State<FluentState>>,
+    mut game_state: ResMut<State<GameState>>,
+) {
+    if *fluent_state.current() == FluentState::Done {
+        game_state.set_next(GameState::Play).unwrap();
     }
 }
 
