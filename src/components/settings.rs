@@ -1,8 +1,8 @@
 use unic_langid::{langid, LanguageIdentifier};
 
-/// Settings
+/// Fluent settings component
 #[derive(Clone, Debug)]
-pub struct Settings {
+pub struct FluentSettings {
     /// The locale to use as the default in your application
     pub default_locale: Option<LanguageIdentifier>,
     /// The fallback locale chain you want to use in your application
@@ -14,7 +14,7 @@ pub struct Settings {
     pub locales_folder: String,
 }
 
-impl Settings {
+impl FluentSettings {
     pub fn with_default_locale(self, default_locale: LanguageIdentifier) -> Self {
         Self {
             default_locale: Some(default_locale),
@@ -40,7 +40,7 @@ impl Settings {
     }
 }
 
-impl Default for Settings {
+impl Default for FluentSettings {
     fn default() -> Self {
         Self {
             default_locale: Some(langid!("en-US")),

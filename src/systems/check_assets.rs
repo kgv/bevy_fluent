@@ -1,4 +1,4 @@
-use crate::{components::Handles, StateComponent};
+use crate::{components::Handles, FluentState};
 use bevy::{
     app::{AppExit, Events},
     asset::LoadState,
@@ -12,7 +12,7 @@ pub(crate) fn check_assets(
     asset_server: Res<AssetServer>,
     mut events: ResMut<Events<AppExit>>,
     handles: Res<Handles>,
-    mut state: ResMut<State<StateComponent>>,
+    mut state: ResMut<State<FluentState>>,
 ) {
     trace!("call");
     match asset_server.get_group_load_state(handles.iter().map(|handle| handle.id)) {
@@ -20,7 +20,7 @@ pub(crate) fn check_assets(
         LoadState::Loaded => {
             debug!(load_state = ?LoadState::Loaded);
             commands.remove_resource::<Handles>();
-            state.set_next(StateComponent::TakeSnapshot).unwrap();
+            state.set_next(FluentState::TakeSnapshot).unwrap();
         }
         _ => {}
     }

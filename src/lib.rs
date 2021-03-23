@@ -3,23 +3,17 @@
 #[cfg(not(feature = "implicit"))]
 #[doc(inline)]
 pub use self::assets::{locale::LocaleAssetsLoader, LocaleAssets};
-#[doc(no_inline)]
-pub use self::components::{Settings as SettingsComponent, Snapshot as SnapshotComponent};
 #[doc(inline)]
 pub use self::{
     assets::{fluent::FluentAssetLoader, FluentAsset},
-    prelude::*,
+    components::{FluentSettings, FluentState, Snapshot},
+    plugins::FluentPlugin,
 };
-
-pub use self::components::State as StateComponent;
 
 /// `use bevy_fluent::prelude::*;` to import common assets, components and plugins
 pub mod prelude {
     #[doc(inline)]
-    pub use super::{
-        components::Settings as FluentSettings, components::State as FluentState,
-        plugins::FluentPlugin, utils::bundle::Request,
-    };
+    pub use super::{utils::bundle::Request, FluentPlugin, FluentSettings, FluentState};
 }
 
 pub mod assets;

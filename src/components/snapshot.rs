@@ -1,4 +1,8 @@
-use crate::{components::Settings, utils::BundleExt, FluentAsset, Request};
+use crate::{
+    FluentSettings,
+    utils::{bundle::Request, BundleExt},
+    FluentAsset,
+};
 use bevy::{
     prelude::*,
     utils::tracing::{self, instrument},
@@ -85,12 +89,12 @@ impl BundleExt for Snapshot {
 
 impl FromWorld for Snapshot {
     fn from_world(world: &mut World) -> Self {
-        let Settings {
+        let FluentSettings {
             default_locale,
             fallback_locale_chain,
             ..
         } = world
-            .get_resource::<Settings>()
+            .get_resource::<FluentSettings>()
             .expect("get `Settings` resource");
         let fluent_assets = world
             .get_resource::<Assets<FluentAsset>>()
@@ -146,7 +150,7 @@ impl Deref for Snapshot {
 
 #[cfg(feature = "implicit")]
 mod implicit {
-    use crate::{components::Settings, FluentAsset};
+    use crate::{FluentSettings, FluentAsset};
     use bevy::{
         asset::{AssetPath, AssetServerSettings},
         prelude::*,
@@ -163,9 +167,9 @@ mod implicit {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get AssetServerSettings resource");
-        let Settings { locales_folder, .. } = world
-            .get_resource::<Settings>()
-            .expect("get Settings resource");
+        let FluentSettings { locales_folder, .. } = world
+            .get_resource::<FluentSettings>()
+            .expect("get FluentSettings resource");
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("get AssetServer resource");
@@ -221,8 +225,8 @@ mod implicit {
 #[cfg(not(feature = "implicit"))]
 mod explicit {
     use crate::{
-        assets::{FluentAsset, LocaleAssets},
-        components::Settings,
+        {FluentAsset, LocaleAssets},
+        FluentSettings,
     };
     use bevy::{
         asset::AssetServerSettings,
@@ -240,8 +244,8 @@ mod explicit {
         let AssetServerSettings { asset_folder } = world
             .get_resource::<AssetServerSettings>()
             .expect("get `AssetServerSettings` resource");
-        let Settings { locales_folder, .. } = world
-            .get_resource::<Settings>()
+        let FluentSettings { locales_folder, .. } = world
+            .get_resource::<FluentSettings>()
             .expect("get `Settings` resource");
         let asset_server = world
             .get_resource::<AssetServer>()

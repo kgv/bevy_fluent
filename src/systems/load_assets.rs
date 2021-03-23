@@ -1,4 +1,4 @@
-use crate::components::{Handles, Settings};
+use crate::{components::Handles, FluentSettings};
 use bevy::{
     prelude::*,
     utils::tracing::{self, instrument},
@@ -9,7 +9,7 @@ use std::path::Path;
 pub(crate) fn load_assets(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    settings: Res<Settings>,
+    settings: Res<FluentSettings>,
 ) {
     trace!("call");
     let path = Path::new(&settings.locales_folder);

@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use bevy_fluent::{components::Snapshot, utils::BundleExt, FluentPlugin, Request};
+use bevy_fluent::{
+    utils::{bundle::Request, BundleExt},
+    FluentPlugin, Snapshot,
+};
 
 pub fn main() {
     App::build()
