@@ -6,12 +6,12 @@ use std::marker::PhantomData;
 
 /// Extension methods for [`Commands`](bevy::ecs::system::Commands)
 pub trait CommandsExt {
-    fn init_resource<T: Component + FromWorld>(&mut self) -> &mut Self;
+    fn init_resource<T: Component + FromWorld>(&mut self);
 }
 
 impl CommandsExt for Commands<'_> {
-    fn init_resource<T: Component + FromWorld>(&mut self) -> &mut Self {
-        self.add_command(InitResource {
+    fn init_resource<T: Component + FromWorld>(&mut self) {
+        self.add(InitResource {
             _phantom_data: PhantomData::<T>,
         })
     }

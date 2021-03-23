@@ -16,7 +16,7 @@
 
 | bevy                                                                                       | bevy_fluent |
 | ------------------------------------------------------------------------------------------ | ----------- |
-| [main](https://github.com/bevyengine/bevy/commit/284889c64b2a4a4f67018e42a14062392edbd0aa) | main        |
+| [main](https://github.com/bevyengine/bevy/commit/9ae56e860468aa3158a702cbcf64e511b84a4b1c) | main        |
 | 0.4                                                                                        | 0.0.1       |
 
 ## Todo
