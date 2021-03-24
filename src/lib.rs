@@ -1,3 +1,5 @@
+//! Bevy fluent
+//!
 //! Bevy plugin for localization using Fluent.
 
 #[cfg(not(feature = "implicit"))]
