@@ -25,20 +25,22 @@ async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'
             fluent_resource
         }
     };
-    load_context.set_default_asset(LoadedAsset::new(FluentAsset(Arc::new(fluent_resource))));
+    load_context.set_default_asset(LoadedAsset::new(ResourceAsset(Arc::new(fluent_resource))));
     Ok(())
 }
 
-/// `FluentResource` wrapper
+/// [`FluentResource`][fluent-resource] wrapper
 ///
 /// # See Also
 ///
 /// [`FluentResource`](https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html).
+///
+/// [fluent-resource]: https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html
 #[derive(Clone, Debug, TypeUuid)]
 #[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
-pub struct FluentAsset(pub(crate) Arc<FluentResource>);
+pub struct ResourceAsset(pub(crate) Arc<FluentResource>);
 
-impl Deref for FluentAsset {
+impl Deref for ResourceAsset {
     type Target = FluentResource;
 
     fn deref(&self) -> &Self::Target {
@@ -46,11 +48,12 @@ impl Deref for FluentAsset {
     }
 }
 
-/// [`AssetLoader`](bevy::asset::AssetLoader) implementation for [`FluentAsset`]
+/// [`AssetLoader`](bevy::asset::AssetLoader) implementation for
+/// [`ResourceAsset`]
 #[derive(Default)]
-pub struct FluentAssetLoader;
+pub struct ResourceAssetLoader;
 
-impl AssetLoader for FluentAssetLoader {
+impl AssetLoader for ResourceAssetLoader {
     fn load<'a>(
         &'a self,
         bytes: &'a [u8],
