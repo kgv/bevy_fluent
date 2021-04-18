@@ -1,3 +1,5 @@
+//! Localization asset module
+
 use crate::{
     exts::{bundle::Request, BundleExt},
     BundleAsset, ResourceAsset,

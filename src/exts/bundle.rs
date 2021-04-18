@@ -60,9 +60,7 @@ where
 
 /// Message content request
 ///
-/// Provides access to message content. Attribute and arguments are optional.
-///
-/// Can be parsed from [`str`] by using [`TryFrom::try_from`].
+/// Provides access to a message content. Attribute and arguments are optional.
 ///
 /// # Examples
 ///

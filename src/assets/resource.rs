@@ -1,3 +1,5 @@
+//! Resource asset module
+
 use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, LoadContext, LoadedAsset},
@@ -29,13 +31,7 @@ async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'
     Ok(())
 }
 
-/// [`FluentResource`][fluent-resource] wrapper
-///
-/// # See Also
-///
-/// [`FluentResource`](https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html).
-///
-/// [fluent-resource]: https://docs.rs/fluent/0.15.0/fluent/struct.FluentResource.html
+/// [`FluentResource`](fluent::FluentResource) wrapper
 #[derive(Clone, Debug, TypeUuid)]
 #[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
 pub struct ResourceAsset(pub(crate) Arc<FluentResource>);

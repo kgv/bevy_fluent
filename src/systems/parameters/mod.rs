@@ -5,4 +5,4 @@
 
 pub use self::server::FluentServer;
 
-pub mod server;
+mod server;
