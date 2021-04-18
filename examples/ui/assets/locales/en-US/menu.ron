@@ -1,0 +1,9 @@
+#![enable(implicit_some)]
+
+(
+    locale: "en-US",
+    resources: [
+        "menu/ui.ftl",
+        // "temp.ftl",
+    ]
+)
