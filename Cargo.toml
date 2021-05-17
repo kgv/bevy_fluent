@@ -14,7 +14,7 @@ exclude = [".github/**/*", "assets/**/*"]
 
 [dependencies]
 anyhow = "1.0.38"
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "9ae56e860468aa3158a702cbcf64e511b84a4b1c", default-features = false }
+bevy = { version = "0.5", default-features = false }
 fluent = "0.15.0"
 fluent-langneg = "0.13.0"
 indexmap = "1.6.1"
@@ -26,7 +26,7 @@ unic-langid = { version = "0.9.0", features = ["macros", "serde"] }
 walkdir = "2.3.1"
 
 [dev-dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "9ae56e860468aa3158a702cbcf64e511b84a4b1c", default-features = false, features = ["bevy_winit", "x11"] }
+bevy = { version = "0.5", default-features = false, features = ["bevy_winit", "x11"] }
 
 [features]
 default = []

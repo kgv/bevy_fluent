@@ -20,7 +20,7 @@ pub(crate) fn check_assets(
         LoadState::Loaded => {
             debug!(load_state = ?LoadState::Loaded);
             commands.remove_resource::<Handles>();
-            state.set_next(FluentState::TakeSnapshot).unwrap();
+            state.overwrite_set(FluentState::TakeSnapshot).unwrap();
         }
         _ => {}
     }

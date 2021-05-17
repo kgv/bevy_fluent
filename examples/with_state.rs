@@ -22,7 +22,7 @@ fn check_fluent_state(
     mut game_state: ResMut<State<GameState>>,
 ) {
     if *fluent_state.current() == FluentState::Done {
-        game_state.set_next(GameState::Play).unwrap();
+        game_state.overwrite_set(GameState::Play).unwrap();
     }
 }
 
@@ -36,7 +36,7 @@ fn localized_hello_world(snapshot: Res<Snapshot>, mut done: Local<bool>) {
     println!("{}", hello_world);
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 enum GameState {
     Initialize,
     Play,
