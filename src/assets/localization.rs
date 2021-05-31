@@ -11,13 +11,13 @@ use bevy::{
     utils::tracing::{self, instrument},
 };
 use fluent::{bundle::FluentBundle, FluentArgs, FluentResource};
-#[cfg(feature = "format")]
-use format::{ext::FormatterExt, lazy_format};
 use indexmap::IndexSet;
 use intl_memoizer::concurrent::IntlLangMemoizer;
-#[cfg(feature = "format")]
-use std::fmt::{self, Display, Formatter};
-use std::{borrow::Borrow, sync::Arc};
+use std::{
+    borrow::Borrow,
+    fmt::{self, Debug, Formatter},
+    sync::Arc,
+};
 use unic_langid::LanguageIdentifier;
 
 /// Collection of [`FluentBundle`](fluent::bundle::FluentBundle)s
@@ -46,29 +46,16 @@ where
     fn content(&self, request: T) -> Option<String> {
         self.bundles.iter().find_map(|bundle| {
             let content = bundle.content(request);
-            #[cfg(feature = "format")]
-            trace!(
-                locale = %lazy_format!(|f| f.display_option(bundle.locales.first())),
-                ?content,
-            );
-            #[cfg(not(feature = "format"))]
             trace!(locale = ?bundle.locales.first(), ?content);
             content
         })
     }
 }
 
-#[cfg(feature = "format")]
-impl Display for Localization {
+impl Debug for Localization {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.display_tuple("Localization")
-            .field(&lazy_format!(|f| {
-                let mut display_list = f.display_list();
-                for bundle in &self.bundles {
-                    display_list.entry(&lazy_format!(|f| f.display_option(bundle.locales.first())));
-                }
-                display_list.finish()
-            }))
+        f.debug_struct("Localization")
+            .field("bundles", &self.locales().collect::<Vec<_>>())
             .finish()
     }
 }
