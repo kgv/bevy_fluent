@@ -10,20 +10,19 @@
 
 ## Documentation
 
-[English 🇺🇸](DOCUMENTATION.en-US.md) | [Русский 🇷🇺](DOCUMENTATION.ru-RU.md)
+[English 🇺🇸](doc/en-US.md) | [Русский 🇷🇺](doc/ru-RU.md)
 
 ## Version
 
-| bevy | bevy_fluent |
-| ---- | ----------- |
-| main | main        |
-| 0.4  | bevy-v0.4 |
+| bevy | bevy_fluent       |
+| ---- | ----------------- |
+| main | main              |
+| v0.5 | v0.2              |
+| v0.4 | branch: bevy-v0.4 |
 
 ## Todo
 
-- [ ] refactor assets retrieving using
-  [`get_handle_path`](https://docs.rs/bevy/0.4.0/bevy/asset/struct.AssetServer.html#method.get_handle_path)
-  ([pr](https://github.com/bevyengine/bevy/pull/1290)),
+- [ ] Checking localization load status using `LoadState`.
 
 ## See Also
 
@@ -43,6 +42,11 @@
 
 - [Locales](https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json)
 - [Unicode Language Identifier][unicode-language-identifier]
+
+## Dedication
+
+Thanks to my little sister Anny ❤️ the world's best linguist and the most
+wonderful sister.
 
 [bevy]: https://github.com/bevyengine/bevy
 [bevy-localisation-plugin-issue]: https://github.com/bevyengine/bevy/issues/461

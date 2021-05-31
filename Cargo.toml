@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2018"
 description = "Bevy plugin for localization using Fluent"
@@ -13,22 +13,27 @@ categories = ["games", "game-development", "internationalization", "localization
 exclude = [".github/**/*", "assets/**/*"]
 
 [dependencies]
-anyhow = "1.0.38"
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "9ae56e860468aa3158a702cbcf64e511b84a4b1c", default-features = false }
+ahash = "0.7.4"
+anyhow = "1.0.40"
+bevy = { version = "0.5.0", default-features = false }
 fluent = "0.15.0"
-fluent-langneg = "0.13.0"
-indexmap = "1.6.1"
+format = { version = "0.2.5", git = "https://github.com/kgv/format", branch = "syn-1.0.65", optional = true, features = ["ext"] }
+indexmap = "1.6.2"
 intl-memoizer = "0.5.1"
+parking_lot = "0.11.1"
 ron = "0.6.4"
-serde = { version = "1.0.123", features = ["derive"] }
-typed-builder = "0.9.0"
-unic-langid = { version = "0.9.0", features = ["macros", "serde"] }
-walkdir = "2.3.1"
+serde = { version = "1.0.126", features = ["derive"] }
+unic-langid = { version = "0.9.0", features = ["serde"] }
 
 [dev-dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy", rev = "9ae56e860468aa3158a702cbcf64e511b84a4b1c", default-features = false, features = ["bevy_winit", "x11"] }
+bevy = { version = "0.5.0", default-features = false, features = [
+    "bevy_wgpu",
+    "bevy_winit",
+    "render",
+    "x11",
+] }
+fluent-langneg = "0.13.0"
+unic-langid = { version = "0.9.0", features = ["macros"] }
 
 [features]
-default = []
-# default = ["implicit"]
-implicit = []
+default = ["format"]
