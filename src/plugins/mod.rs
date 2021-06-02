@@ -3,9 +3,8 @@
 //! Any entity located directly in this module is [`Plugin`](bevy::app::Plugin).
 
 use crate::{
-    components::{Cache, Queue},
-    systems::serve,
-    BundleAsset, BundleAssetLoader, Localization, ResourceAsset, ResourceAssetLoader,
+    components::Queue, systems::serve, BundleAsset, BundleAssetLoader, Localization, ResourceAsset,
+    ResourceAssetLoader,
 };
 use bevy::{ecs::system::IntoExclusiveSystem, prelude::*};
 
@@ -20,7 +19,6 @@ impl Plugin for FluentPlugin {
             .add_asset::<BundleAsset>()
             .init_asset_loader::<BundleAssetLoader>()
             .add_asset::<Localization>()
-            .init_resource::<Cache>()
             .init_resource::<Queue>()
             .add_system_to_stage(CoreStage::PostUpdate, serve.exclusive_system());
     }

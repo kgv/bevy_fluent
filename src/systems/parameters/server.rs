@@ -1,7 +1,4 @@
-use crate::{
-    components::{Cache, Queue},
-    Localization,
-};
+use crate::{components::Queue, Localization};
 use ahash::AHasher;
 use bevy::{
     asset::{AssetPath, HandleId},
@@ -16,7 +13,6 @@ use std::hash::{Hash, Hasher};
 #[derive(SystemParam)]
 pub struct FluentServer<'a> {
     asset_server: Res<'a, AssetServer>,
-    cache: ResMut<'a, Cache>,
     queue: ResMut<'a, Queue>,
 }
 
@@ -36,7 +32,6 @@ impl FluentServer<'_> {
             handles.insert(handle);
         }
         let id = HandleId::Id(Localization::TYPE_UUID, hasher.finish());
-        self.cache.write().insert(id, handles.clone());
         self.queue.write().push_back((id, handles));
         self.asset_server.get_handle(id)
     }

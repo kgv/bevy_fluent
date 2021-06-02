@@ -25,6 +25,7 @@ use unic_langid::LanguageIdentifier;
 #[uuid = "981fc1ac-4748-4d09-b826-7cdcb7272a99"]
 pub struct Localization {
     bundles: Vec<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
+    _handles: IndexSet<Handle<BundleAsset>>,
 }
 
 impl Localization {
@@ -89,7 +90,7 @@ impl Builder {
         let bundle_assets = world.get_resource::<Assets<BundleAsset>>().unwrap();
         let resource_assets = world.get_resource::<Assets<ResourceAsset>>().unwrap();
         let mut bundles = Vec::new();
-        for bundle_handle in self.handles {
+        for bundle_handle in &self.handles {
             let bundle_asset = bundle_assets.get(bundle_handle).unwrap();
             let locales = bundle_asset.locale().into_iter().cloned().collect();
             let mut bundle = FluentBundle::new_concurrent(locales);
@@ -106,6 +107,9 @@ impl Builder {
             }
             bundles.push(bundle);
         }
-        Localization { bundles }
+        Localization {
+            bundles,
+            _handles: self.handles,
+        }
     }
 }

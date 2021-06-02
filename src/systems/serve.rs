@@ -1,7 +1,4 @@
-use crate::{
-    components::{Cache, Queue},
-    BundleAsset, Localization,
-};
+use crate::{components::Queue, BundleAsset, Localization};
 use bevy::{asset::LoadState, prelude::*};
 
 // [???](https://github.com/bevyengine/bevy/blob/d119c1ce14da59089a65373d59715a41d05251ad/crates/bevy_audio/src/audio_output.rs#L72)
@@ -10,7 +7,6 @@ pub(crate) fn serve(world: &mut World) {
     let asset_server = world.get_resource::<AssetServer>().unwrap();
     let bundle_assets = world.get_resource::<Assets<BundleAsset>>().unwrap();
     let mut localization_assets = world.get_resource_mut::<Assets<Localization>>().unwrap();
-    let cache = world.get_resource_mut::<Cache>().unwrap();
     let queue = world.get_resource_mut::<Queue>().unwrap();
     let mut writer = queue.write();
     for index in 0..writer.len() {
@@ -33,9 +29,6 @@ pub(crate) fn serve(world: &mut World) {
                 if asset_server.get_group_load_state(resource_handles) == LoadState::Loaded {
                     let localization = Localization::builder().with_handles(handles).build(&world);
                     let _ = localization_assets.set(id, localization);
-                    cache
-                        .write()
-                        .retain(|id, _| localization_assets.contains(*id));
                     continue;
                 }
             }
