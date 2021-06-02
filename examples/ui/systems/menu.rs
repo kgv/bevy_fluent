@@ -3,7 +3,6 @@ use crate::{
         tags::{Menu, NextButton, PreviousButton},
         ColorMaterials, DefaultFont, Locales,
     },
-    pathfinders::{Menu as MenuPathfinder, Pathfinder},
     to_sentence_case::ToSentenceCase,
     GameState,
 };
@@ -197,33 +196,23 @@ pub fn interaction(
 }
 
 pub fn next(
-    mut commands: Commands,
-    fluent_server: FluentServer,
     mut game_state: ResMut<State<GameState>>,
     mut locales: ResMut<Locales>,
     query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
 ) {
     if let Ok(Interaction::Clicked) = query.single() {
         locales.shift(1);
-        let paths = MenuPathfinder::paths(&locales);
-        let handle = fluent_server.load(paths);
-        commands.insert_resource(handle);
         game_state.set(GameState::Load).unwrap();
     }
 }
 
 pub fn previous(
-    mut commands: Commands,
-    fluent_server: FluentServer,
     mut game_state: ResMut<State<GameState>>,
     mut locales: ResMut<Locales>,
     query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
 ) {
     if let Ok(Interaction::Clicked) = query.single() {
         locales.shift(-1);
-        let paths = MenuPathfinder::paths(&locales);
-        let handle = fluent_server.load(paths);
-        commands.insert_resource(handle);
         game_state.set(GameState::Load).unwrap();
     }
 }
