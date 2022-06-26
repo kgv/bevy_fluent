@@ -4,36 +4,57 @@
 
 ## Use
 
-Load localization handle using `FluentServer`:
+Load asset using `AssetServer`:
 
 ```rust
-let handle = fluent_server.load(vec!["locales/en-US/locale.ron"]);
+let handle = asset_server.load("locales/en-US/main.ftl.ron");
 ```
 
-Check localization load state:
+Load all assets matching the glob using `AssetServerExt`:
 
 ```rust
-if let Some(localization) = assets.get(handle) {
+use bevy_fluent::exts::bevy::AssetServerExt;
+
+let handles = asset_server.load_glob("locales/**/main.ftl.ron")?;
+```
+
+Check assets load state:
+
+```rust
+if let LoadState::Loaded =  asset_server.get_load_state(handle) {
     ...
 }
 ```
 
-Note: checking the localization load status using `LoadState` is not implemented
-yet.
+Check assets load state:
+
+```rust
+if let LoadState::Loaded = asset_server.get_group_load_state(handles) {
+    ...
+}
+```
+
+Create a bundle fallback chain based on the locale fallback chain using
+`LocalizationBuilder`:
+
+```rust
+let localization = localization_builder.build(handles);
+```
 
 Request content:
 
 ```rust
-let hello_world = localization.content("hello-world").unwrap();
+let hello_world = bundle_asset.content("hello-world")?;
+let hello_world = localization.content("hello-world")?;
 ```
 
 ## Definitions
 
-[***Localization***][localization] is a Fluent [***bundles***][fluent-bundle]
+[***Localization***][localization] is a Fluent [***bundle***][fluent-bundle]
 fallback chain.
 
 [***Bundle asset***][bundle-asset] - is an abstraction for presentation Fluent
-*bundles*. Each *bundle asset* file has the extension `.ron`.
+*bundles*. Each *bundle asset* file has the extension `.ftl.ron`.
 
 [***Resource asset***][resource-asset] - is an abstraction for presentation
 Fluent [***resources***][fluent-resource]. Each *resource asset* file has the

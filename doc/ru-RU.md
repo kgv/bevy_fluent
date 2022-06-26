@@ -4,27 +4,48 @@
 
 ## Использование
 
-Загрузить хендл локализации с помощью `FluentServer`:
+Загрузить ассет с помощью `AssetServer`:
 
 ```rust
-let handle = fluent_server.load(vec!["locales/en-US/locale.ron"]);
+let handle = asset_server.load("locales/ru-RU/main.ftl.ron");
 ```
 
-Проверить статус загрузки локализации:
+Загрузить все ассеты, удовлетворяющие шаблону, с помощью `AssetServerExt`:
 
 ```rust
-if let Some(localization) = assets.get(handle) {
+use bevy_fluent::exts::bevy::AssetServerExt;
+
+let handles = asset_server.load_glob("locales/**/main.ftl.ron")?;
+```
+
+Проверить статус загрузки ассета:
+
+```rust
+if let LoadState::Loaded =  asset_server.get_load_state(handle) {
     ...
 }
 ```
 
-Примечание: проверка статуса загрузки локализации с помощью `LoadState` пока не
-реализована.
+Проверить статус загрузки нескольких ассетов:
+
+```rust
+if let LoadState::Loaded = asset_server.get_group_load_state(handles) {
+    ...
+}
+```
+
+Создать резервную цепочку бандлов на основе резервной цепочки локалей с помощью
+`LocalizationBuilder`:
+
+```rust
+let localization = localization_builder.build(handles);
+```
 
 Запросить контент:
 
 ```rust
-let hello_world = localization.content("hello-world").unwrap();
+let hello_world = bundle_asset.content("hello-world")?;
+let hello_world = localization.content("hello-world")?;
 ```
 
 ## Определения
@@ -33,7 +54,7 @@ let hello_world = localization.content("hello-world").unwrap();
 [***бандлов***][fluent-bundle] Fluent.
 
 [***Ассет бандла***][bundle-asset] - является абстракцией для представления
-*бандлов* Fluent. Файл *ассета бандла* имеет расширение `.ron`.
+*бандлов* Fluent. Файл *ассета бандла* имеет расширение `.ftl.ron`.
 
 [***Ассет ресурса***][resource-asset] - является абстракцией для представления
 [***ресурсов***][fluent-resource] Fluent. Файл *ассета ресурсов* имеет
