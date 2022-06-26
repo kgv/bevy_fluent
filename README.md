@@ -31,7 +31,7 @@
 - [Fluent][fluent]
 - [Fluent fallback][fluent-fallback]
 - [Fluent language negotiation][fluent-langneg]
-- [Fluent message format 2.0](fluent-message-format-2.0)
+- [Fluent message format 2.0][fluent-message-format-2.0]
 - [Fluent resource manager][fluent-resmgr]
 - [L10nRegistry][l10nregistry]
 
