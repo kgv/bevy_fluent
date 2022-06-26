@@ -1,4 +1,4 @@
-//! Resource asset module
+//! Resource asset
 
 use anyhow::Result;
 use bevy::{
@@ -13,10 +13,10 @@ use bevy::{
 use fluent::FluentResource;
 use std::{ops::Deref, str, sync::Arc};
 
-#[instrument(fields(load_context = %load_context.path().display()), skip(bytes))]
-async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
-    let source = str::from_utf8(bytes)?.to_string();
-    let fluent_resource = match FluentResource::try_new(source) {
+#[instrument(skip_all)]
+pub(crate) fn deserialize(bytes: &[u8]) -> Result<Arc<FluentResource>> {
+    let string = str::from_utf8(bytes)?.to_string();
+    let fluent_resource = match FluentResource::try_new(string) {
         Ok(fluent_resource) => fluent_resource,
         Err((fluent_resource, errors)) => {
             error_span!("try_new").in_scope(|| {
@@ -27,8 +27,12 @@ async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'
             fluent_resource
         }
     };
-    load_context.set_default_asset(LoadedAsset::new(ResourceAsset(Arc::new(fluent_resource))));
-    Ok(())
+    Ok(Arc::new(fluent_resource))
+}
+
+#[instrument(fields(path = %load_context.path().display()), skip_all)]
+fn load(data: Arc<FluentResource>, load_context: &mut LoadContext<'_>) {
+    load_context.set_default_asset(LoadedAsset::new(ResourceAsset(data)));
 }
 
 /// [`FluentResource`](fluent::FluentResource) wrapper
@@ -51,11 +55,11 @@ pub struct ResourceAssetLoader;
 
 impl AssetLoader for ResourceAssetLoader {
     fn load<'a>(
-        &'a self,
+        &self,
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load_asset(bytes, load_context).await })
+        Box::pin(async move { Ok(load(deserialize(bytes)?, load_context)) })
     }
 
     fn extensions(&self) -> &[&str] {

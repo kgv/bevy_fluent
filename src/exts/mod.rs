@@ -1,3 +1,5 @@
-pub use self::bundle::BundleExt;
+pub use self::path::PathExt;
 
-pub mod bundle;
+pub mod bevy;
+pub mod fluent;
+pub mod path;

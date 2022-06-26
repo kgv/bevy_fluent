@@ -1,26 +1,31 @@
-use bevy::{asset::AssetServerSettings, prelude::*};
+use bevy::{
+    asset::{AssetServerSettings, LoadState},
+    prelude::*,
+};
 use bevy_fluent::prelude::*;
+use unic_langid::langid;
 
 pub fn main() {
-    App::build()
+    App::new()
         .insert_resource(AssetServerSettings {
             asset_folder: "examples/minimal/assets".to_string(),
+            ..default()
         })
+        .insert_resource(Locale::new(langid!("en-US")))
         .add_plugins(DefaultPlugins)
         .add_plugin(FluentPlugin)
-        .add_system(localized_hello_world.system())
+        .add_system(localized_hello_world)
         .run();
 }
 
 fn localized_hello_world(
-    fluent_server: FluentServer,
-    assets: Res<Assets<Localization>>,
-    mut handle: Local<Option<Handle<Localization>>>,
+    asset_server: Res<AssetServer>,
+    assets: Res<Assets<BundleAsset>>,
+    mut handle: Local<Option<Handle<BundleAsset>>>,
 ) {
-    let localization_handle =
-        handle.get_or_insert_with(|| fluent_server.load(vec!["locales/en-US/locale.ron"]));
-    if let Some(localization) = assets.get(localization_handle.id) {
-        let hello_world = localization.content("hello-world").unwrap();
-        println!("{}", hello_world);
+    let handle = &*handle.get_or_insert_with(|| asset_server.load("locales/en-US/main.ftl.ron"));
+    if let LoadState::Loaded = asset_server.get_load_state(handle) {
+        let bundle = assets.get(handle).unwrap();
+        assert!(matches!(bundle.content("hello-world"), Some(content) if content == "hello world"));
     }
 }

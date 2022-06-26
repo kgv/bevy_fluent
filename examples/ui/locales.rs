@@ -1,5 +1,7 @@
 use unic_langid::{langid, LanguageIdentifier};
 
+// pub const UND: LanguageIdentifier = langid!("und");
+
 pub mod de {
     use super::*;
 

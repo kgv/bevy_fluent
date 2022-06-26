@@ -1,4 +1,4 @@
-use bevy_fluent::exts::bundle::Request;
+use bevy_fluent::exts::fluent::content::Request;
 use fluent::types::FluentValue;
 use std::mem::discriminant;
 

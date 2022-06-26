@@ -1,63 +1,62 @@
-//! Bundle asset module
+//! Bundle asset
 
-use super::ResourceAsset;
+use crate::assets::resource;
 use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
     prelude::*,
     reflect::TypeUuid,
-    utils::BoxedFuture,
+    utils::{
+        tracing::{self, instrument},
+        BoxedFuture,
+    },
 };
+use fluent::{bundle::FluentBundle, FluentResource};
+use intl_memoizer::concurrent::IntlLangMemoizer;
 use serde::Deserialize;
-use std::{path::PathBuf, str};
+use std::{ops::Deref, path::PathBuf, str, sync::Arc};
 use unic_langid::LanguageIdentifier;
 
-async fn load_asset<'a, 'b>(bytes: &'a [u8], load_context: &'a mut LoadContext<'b>) -> Result<()> {
-    let Intermediate {
-        locale,
-        resources: paths,
-    } = ron::de::from_bytes(bytes)?;
-    let mut handles = Vec::new();
+#[instrument(fields(path = %load_context.path().display()), ret, skip_all)]
+async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
+    let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
     let mut asset_paths = Vec::new();
-    let parent = load_context.path().parent().unwrap();
-    for mut path in paths {
+    let parent = load_context.path().parent();
+    for mut path in data.resources {
         if path.is_relative() {
-            path = parent.join(path);
+            if let Some(parent) = parent {
+                path = parent.join(path);
+            }
         }
-        let asset_path = AssetPath::new(path, None);
-        asset_paths.push(asset_path.clone());
-        let handle = load_context.get_handle(asset_path);
-        handles.push(handle);
+        let bytes = load_context.read_asset_bytes(&path).await?;
+        let resource = resource::deserialize(&bytes)?;
+        if let Err(errors) = bundle.add_resource(resource) {
+            warn_span!("add_resource").in_scope(|| {
+                for error in errors {
+                    warn!(%error);
+                }
+            });
+        }
+        asset_paths.push(AssetPath::new(path, None));
     }
-    // Add child assets as dependencies to make sure it is loaded by the asset
-    // server when our bundle is.
     load_context.set_default_asset(
-        LoadedAsset::new(BundleAsset {
-            locale,
-            resources: handles,
-        })
-        .with_dependencies(asset_paths),
+        LoadedAsset::new(BundleAsset(Arc::new(bundle))).with_dependencies(asset_paths),
     );
     Ok(())
 }
 
 /// [`FluentBundle`](fluent::bundle::FluentBundle) wrapper
 ///
-/// Collection of [`ResourceAsset`]'s handles for a single locale
-#[derive(Clone, Debug, TypeUuid)]
+/// Collection of [`FluentResource`]s for a single locale
+#[derive(Clone, TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
-pub struct BundleAsset {
-    locale: Option<LanguageIdentifier>,
-    resources: Vec<Handle<ResourceAsset>>,
-}
+pub struct BundleAsset(pub(crate) Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>);
 
-impl BundleAsset {
-    pub fn locale(&self) -> Option<&LanguageIdentifier> {
-        self.locale.as_ref()
-    }
+impl Deref for BundleAsset {
+    type Target = FluentBundle<Arc<FluentResource>, IntlLangMemoizer>;
 
-    pub fn resources(&self) -> &[Handle<ResourceAsset>] {
-        &self.resources
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -67,20 +66,21 @@ pub struct BundleAssetLoader;
 
 impl AssetLoader for BundleAssetLoader {
     fn load<'a>(
-        &'a self,
+        &self,
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load_asset(bytes, load_context).await })
+        Box::pin(async move { load(ron::de::from_bytes(bytes)?, load_context).await })
     }
 
     fn extensions(&self) -> &[&str] {
-        &["ron"]
+        &["ftl.ron"]
     }
 }
 
+/// Data
 #[derive(Debug, Deserialize)]
-struct Intermediate {
-    locale: Option<LanguageIdentifier>,
+pub(crate) struct Data {
+    locale: LanguageIdentifier,
     resources: Vec<PathBuf>,
 }

@@ -17,12 +17,9 @@
 | bevy | bevy_fluent       |
 | ---- | ----------------- |
 | main | main              |
+| v0.7 | v0.3              |
 | v0.5 | v0.2              |
 | v0.4 | branch: bevy-v0.4 |
-
-## Todo
-
-- [ ] Checking localization load status using `LoadState`.
 
 ## See Also
 
@@ -57,3 +54,8 @@ wonderful sister.
 [fluent-resmgr]: https://github.com/projectfluent/fluent-rs/tree/master/fluent-resmgr
 [l10nregistry]: https://github.com/zbraniecki/l10nregistry-rs
 [unicode-language-identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier
+
+[unic-locale]: https://docs.rs/unic-locale/0.9.0/unic_locale/index.html
+[language-tags]: https://www.w3.org/International/questions/qa-choosing-language-tags.ru
+[language-subtag-lookup]: https://r12a.github.io/app-subtags
+[iana-language-subtag-registry]: http://www.iana.org/assignments/language-subtag-registry

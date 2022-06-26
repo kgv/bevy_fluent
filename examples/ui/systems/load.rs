@@ -1,23 +1,27 @@
-use crate::{
-    components::Locales,
-    pathfinders::{Menu as MenuPathfinder, Pathfinder},
-    GameState,
-};
-use bevy::prelude::*;
+use crate::GameState;
+use bevy::{asset::LoadState, prelude::*};
 use bevy_fluent::prelude::*;
 
-pub fn setup(mut commands: Commands, fluent_server: FluentServer, locales: Res<Locales>) {
-    let paths = MenuPathfinder::paths(&locales);
-    let handle = fluent_server.load(paths);
-    commands.insert_resource(handle);
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let handles = asset_server
+        .load_glob::<BundleAsset>("locales/**/menu.ftl.ron")
+        .unwrap();
+    commands.insert_resource(handles);
 }
 
-pub fn loading(
-    assets: Res<Assets<Localization>>,
+pub fn load(
+    mut commands: Commands,
+    localization_builder: LocalizationBuilder,
+    asset_server: Res<AssetServer>,
     mut game_state: ResMut<State<GameState>>,
-    handle: ResMut<Handle<Localization>>,
+    handles: Res<Vec<Handle<BundleAsset>>>,
 ) {
-    if assets.get(handle.id).is_some() {
+    if let LoadState::Loaded =
+        asset_server.get_group_load_state(handles.iter().map(|handle| handle.id))
+    {
+        let localization = localization_builder.build(&*handles);
+        commands.remove_resource::<Vec<Handle<BundleAsset>>>();
+        commands.insert_resource(localization);
         game_state.set(GameState::Menu).unwrap();
     }
 }

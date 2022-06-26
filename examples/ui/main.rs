@@ -1,41 +1,34 @@
 use crate::{
-    components::{ColorMaterials, DefaultFont, Locales},
+    components::Font,
     locales::{de, en, ru},
+    resources::Locales,
     systems::{load, menu},
 };
 use bevy::{asset::AssetServerSettings, prelude::*};
 use bevy_fluent::prelude::*;
 
 fn main() {
-    App::build()
-        .insert_resource(bevy::log::LogSettings {
-            level: bevy::log::Level::ERROR,
-            filter: "bevy_fluent=trace".to_string(),
-        })
+    App::new()
         .insert_resource(AssetServerSettings {
             asset_folder: "examples/ui/assets".to_string(),
+            ..default()
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(FluentPlugin)
-        .insert_resource(
-            Locales::new(de::DE)
-                .with_default(en::US)
-                .with(ru::BY)
-                .with(ru::RU),
-        )
-        .init_resource::<ColorMaterials>()
-        .init_resource::<DefaultFont>()
+        .insert_resource(Locale::new(ru::RU).with_default(en::US))
+        .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))
+        .init_resource::<Font>()
         .add_state(GameState::Load)
-        .add_system_set(SystemSet::on_enter(GameState::Load).with_system(load::setup.system()))
-        .add_system_set(SystemSet::on_update(GameState::Load).with_system(load::loading.system()))
-        .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(menu::setup.system()))
+        .add_system_set(SystemSet::on_enter(GameState::Load).with_system(load::setup))
+        .add_system_set(SystemSet::on_update(GameState::Load).with_system(load::load))
+        .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(menu::setup))
         .add_system_set(
             SystemSet::on_update(GameState::Menu)
-                .with_system(menu::interaction.system())
-                .with_system(menu::next.system())
-                .with_system(menu::previous.system()),
+                .with_system(menu::interaction)
+                .with_system(menu::next)
+                .with_system(menu::previous),
         )
-        .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(menu::cleanup.system()))
+        .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(menu::cleanup))
         .run();
 }
 
@@ -47,6 +40,6 @@ pub enum GameState {
 
 mod components;
 mod locales;
-mod pathfinders;
+mod resources;
 mod systems;
 mod to_sentence_case;

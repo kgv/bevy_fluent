@@ -1,35 +1,40 @@
 [package]
 name = "bevy_fluent"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["g <kgv@users.noreply.github.com>"]
-edition = "2018"
+edition = "2021"
 description = "Bevy plugin for localization using Fluent"
 readme = "README.md"
 homepage = "https://crates.io/crates/bevy_fluent"
 repository = "https://github.com/kgv/bevy_fluent"
 license = "MIT OR Apache-2.0"
 keywords = ["bevy", "gamedev", "internationalization", "localization", "plugin"]
-categories = ["games", "game-development", "internationalization", "localization"]
+categories = [
+  "games",
+  "game-development",
+  "internationalization",
+  "localization",
+]
 exclude = [".github/**/*"]
 
 [dependencies]
-ahash = "0.7.4"
-anyhow = "1.0.40"
-bevy = { version = "0.5.0", default-features = false }
+anyhow = "1.0.58"
+bevy = { version = "0.7.0", default-features = false }
 fluent = "0.16.0"
-indexmap = "1.6.2"
+fluent-langneg = "0.13.0"
+globset = "0.4.9"
+indexmap = { version = "1.9.1", features = ["serde"] }
 intl-memoizer = "0.5.1"
-parking_lot = "0.11.1"
 ron = "0.7.1"
-serde = { version = "1.0.126", features = ["derive"] }
+serde = { version = "1.0.137", features = ["derive"] }
+thiserror = "1.0.25"
 unic-langid = { version = "0.9.0", features = ["serde"] }
+uuid = { version = "1.1.2", features = ["serde", "v4", "v5"] }
 
 [dev-dependencies]
-bevy = { version = "0.5.0", default-features = false, features = [
-    "bevy_wgpu",
-    "bevy_winit",
-    "render",
-    "x11",
+bevy = { version = "0.7.0", default-features = false, features = [
+  "bevy_winit",
+  "render",
+  "x11",
 ] }
-fluent-langneg = "0.13.0"
 unic-langid = { version = "0.9.0", features = ["macros"] }

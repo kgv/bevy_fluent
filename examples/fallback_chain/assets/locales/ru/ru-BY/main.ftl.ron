@@ -1,7 +1,5 @@
-#![enable(implicit_some)]
-
 (
-    locale: "en-US",
+    locale: "ru-BY",
     resources: [
         "hello_world.ftl",
     ]

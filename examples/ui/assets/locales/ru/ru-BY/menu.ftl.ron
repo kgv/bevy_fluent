@@ -1,7 +1,5 @@
-#![enable(implicit_some)]
-
 (
-    locale: "ru-RU",
+    locale: "ru-BY",
     resources: [
         "menu/ui.ftl",
     ]

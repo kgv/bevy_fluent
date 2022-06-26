@@ -21,13 +21,13 @@ fn parse_args(args: &str) -> FluentArgs {
     fluent_args
 }
 
-/// Extension methods for [`FluentBundle`](fluent::bundle::FluentBundle)
-pub trait BundleExt<'a, T: Into<Request<'a, U>>, U: Borrow<FluentArgs<'a>>> {
+/// Content
+pub trait Content<'a, T: Into<Request<'a, U>>, U: Borrow<FluentArgs<'a>>> {
     /// Request message content
     fn content(&self, request: T) -> Option<String>;
 }
 
-impl<'a, T, U, V> BundleExt<'a, T, U> for FluentBundle<V, IntlLangMemoizer>
+impl<'a, T, U, V> Content<'a, T, U> for FluentBundle<V, IntlLangMemoizer>
 where
     T: Into<Request<'a, U>>,
     U: Borrow<FluentArgs<'a>>,
@@ -67,7 +67,7 @@ where
 /// Only identifier:
 ///
 /// ```
-/// # use bevy_fluent::exts::bundle::Request;
+/// # use bevy_fluent::exts::fluent::content::Request;
 /// #
 /// let request = Request::from("id");
 /// ```
@@ -75,7 +75,7 @@ where
 /// Identifier and attribute:
 ///
 /// ```
-/// # use bevy_fluent::exts::bundle::Request;
+/// # use bevy_fluent::exts::fluent::content::Request;
 /// #
 /// let request = Request::from("id.attr");
 /// ```
@@ -83,7 +83,7 @@ where
 /// Identifier and argument:
 ///
 /// ```
-/// # use bevy_fluent::exts::bundle::Request;
+/// # use bevy_fluent::exts::fluent::content::Request;
 /// #
 /// let request = Request::from("id?key=value");
 /// ```
@@ -91,7 +91,7 @@ where
 /// Identifier attribute and arguments:
 ///
 /// ```
-/// # use bevy_fluent::exts::bundle::Request;
+/// # use bevy_fluent::exts::fluent::content::Request;
 /// #
 /// let request = Request::from("id.attr?key1=value1&key2=value2");
 /// ```
@@ -104,10 +104,7 @@ pub struct Request<'a, T> {
 
 impl<'a> Request<'a, &'static FluentArgs<'static>> {
     pub fn new(id: &'a str) -> Self {
-        Self {
-            id,
-            ..Default::default()
-        }
+        Self { id, ..default() }
     }
 }
 
@@ -133,9 +130,9 @@ impl<'a, T> Request<'a, T> {
 impl<T> Default for Request<'_, T> {
     fn default() -> Self {
         Self {
-            id: Default::default(),
-            attr: Default::default(),
-            args: Default::default(),
+            id: default(),
+            attr: default(),
+            args: default(),
         }
     }
 }
@@ -184,18 +181,18 @@ impl<'a> From<&'a str> for Request<'a, FluentArgs<'a>> {
                 None => Self {
                     id,
                     attr: Some(value),
-                    ..Default::default()
+                    ..default()
                 },
             },
             None => match value.split_once('?') {
                 Some((id, args)) => Self {
                     id,
                     args: Some(parse_args(args)),
-                    ..Default::default()
+                    ..default()
                 },
                 None => Self {
                     id: value,
-                    ..Default::default()
+                    ..default()
                 },
             },
         }

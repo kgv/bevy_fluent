@@ -1,25 +1,22 @@
-//! Plugins module
+//! Plugins
 //!
 //! Any entity located directly in this module is [`Plugin`](bevy::app::Plugin).
 
 use crate::{
-    components::Queue, systems::serve, BundleAsset, BundleAssetLoader, Localization, ResourceAsset,
-    ResourceAssetLoader,
+    assets::{BundleAssetLoader, ResourceAssetLoader},
+    BundleAsset, ResourceAsset,
 };
-use bevy::{ecs::system::IntoExclusiveSystem, prelude::*};
+use bevy::prelude::*;
 
 /// Adds support for Fluent file loading to applications
 #[derive(Default)]
 pub struct FluentPlugin;
 
 impl Plugin for FluentPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_asset::<ResourceAsset>()
             .init_asset_loader::<ResourceAssetLoader>()
             .add_asset::<BundleAsset>()
-            .init_asset_loader::<BundleAssetLoader>()
-            .add_asset::<Localization>()
-            .init_resource::<Queue>()
-            .add_system_to_stage(CoreStage::PostUpdate, serve.exclusive_system());
+            .init_asset_loader::<BundleAssetLoader>();
     }
 }

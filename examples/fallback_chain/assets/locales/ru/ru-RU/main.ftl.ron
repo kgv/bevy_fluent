@@ -1,0 +1,6 @@
+(
+    locale: "ru-RU",
+    resources: [
+        "hello_world.ftl",
+    ]
+)
