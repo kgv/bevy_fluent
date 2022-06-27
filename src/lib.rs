@@ -4,10 +4,10 @@
 
 #[doc(inline)]
 pub use self::{
-    assets::{BundleAsset, Localization, ResourceAsset},
+    assets::{BundleAsset, ResourceAsset},
     exts::{bevy::AssetServerExt, fluent::Content},
     plugins::FluentPlugin,
-    resources::Locale,
+    resources::{Locale, Localization},
     systems::parameters::LocalizationBuilder,
 };
 

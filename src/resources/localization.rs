@@ -5,39 +5,33 @@ use crate::{
     BundleAsset,
 };
 use bevy::{
-    asset::HandleId,
     prelude::*,
-    reflect::TypeUuid,
     utils::tracing::{self, instrument},
 };
-use fluent::{bundle::FluentBundle, FluentArgs, FluentResource};
+use fluent::FluentArgs;
 use indexmap::IndexMap;
-use intl_memoizer::concurrent::IntlLangMemoizer;
 use std::{
     borrow::Borrow,
     fmt::{self, Debug, Formatter},
-    sync::Arc,
 };
 use unic_langid::LanguageIdentifier;
 
-/// Collection of [`FluentBundle`](fluent::bundle::FluentBundle)s
-#[derive(TypeUuid)]
-#[uuid = "981fc1ac-4748-4d09-b826-7cdcb7272a99"]
-pub struct Localization(
-    IndexMap<HandleId, Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>>,
-);
+/// Localization
+///
+/// Collection of [`BundleAsset`]s.
+pub struct Localization(IndexMap<Handle<BundleAsset>, BundleAsset>);
 
 impl Localization {
     pub fn new() -> Self {
         Localization(IndexMap::new())
     }
 
-    pub fn handles(&self) -> impl Iterator<Item = HandleId> + '_ {
-        self.0.keys().cloned()
+    pub fn handles(&self) -> impl Iterator<Item = &Handle<BundleAsset>> {
+        self.0.keys()
     }
 
-    pub fn insert<H: Into<HandleId>>(&mut self, handle: H, asset: BundleAsset) {
-        self.0.insert(handle.into(), asset.0);
+    pub fn insert(&mut self, handle: &Handle<BundleAsset>, asset: &BundleAsset) {
+        self.0.insert(handle.clone(), asset.clone());
     }
 
     pub fn locales(&self) -> impl Iterator<Item = &LanguageIdentifier> {

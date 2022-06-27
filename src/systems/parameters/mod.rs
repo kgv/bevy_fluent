@@ -31,10 +31,7 @@ impl LocalizationBuilder<'_, '_> {
         let locales = self.locale.fallback_chain(locale_entries.keys().cloned());
         let mut localization = Localization::new();
         for locale in locales {
-            localization.insert(
-                locale_entries[locale].handle,
-                locale_entries[locale].asset.clone(),
-            );
+            localization.insert(locale_entries[locale].handle, locale_entries[locale].asset);
         }
         localization
     }

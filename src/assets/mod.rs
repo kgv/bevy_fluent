@@ -5,10 +5,8 @@
 #[doc(inline)]
 pub use self::{
     bundle::{BundleAsset, BundleAssetLoader},
-    localization::Localization,
     resource::{ResourceAsset, ResourceAssetLoader},
 };
 
 pub mod bundle;
-pub mod localization;
 pub mod resource;
