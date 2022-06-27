@@ -80,7 +80,7 @@ impl AssetLoader for BundleAssetLoader {
 
 /// Data
 #[derive(Debug, Deserialize)]
-pub(crate) struct Data {
+struct Data {
     locale: LanguageIdentifier,
     resources: Vec<PathBuf>,
 }

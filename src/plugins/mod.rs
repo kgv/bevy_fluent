@@ -3,7 +3,7 @@
 //! Any entity located directly in this module is [`Plugin`](bevy::app::Plugin).
 
 use crate::{
-    assets::{BundleAssetLoader, ResourceAssetLoader},
+    assets::{bundle::BundleAssetLoader, resource::ResourceAssetLoader},
     BundleAsset, ResourceAsset,
 };
 use bevy::prelude::*;
