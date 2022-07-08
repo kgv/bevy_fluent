@@ -95,7 +95,7 @@ where
 /// #
 /// let request = Request::from("id.attr?key1=value1&key2=value2");
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Request<'a, T> {
     pub id: &'a str,
     pub attr: Option<&'a str>,

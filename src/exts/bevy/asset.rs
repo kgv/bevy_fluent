@@ -57,7 +57,7 @@ impl AssetServerExt for AssetServer {
         let matcher = Glob::new(glob)?.compile_matcher();
         let path = path
             .find_prefix(|path| self.asset_io().is_directory(path))
-            .unwrap_or(Path::new(""));
+            .unwrap_or_else(|_| Path::new(""));
         trace!(base = ?path);
         Ok(self
             .asset_io()

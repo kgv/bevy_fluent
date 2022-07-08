@@ -59,7 +59,10 @@ impl AssetLoader for ResourceAssetLoader {
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { Ok(load(deserialize(bytes)?, load_context)) })
+        Box::pin(async move {
+            load(deserialize(bytes)?, load_context);
+            Ok(())
+        })
     }
 
     fn extensions(&self) -> &[&str] {

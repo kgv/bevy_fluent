@@ -19,11 +19,12 @@ use unic_langid::LanguageIdentifier;
 /// Localization
 ///
 /// Collection of [`BundleAsset`]s.
+#[derive(Default)]
 pub struct Localization(IndexMap<Handle<BundleAsset>, BundleAsset>);
 
 impl Localization {
     pub fn new() -> Self {
-        Localization(IndexMap::new())
+        Self::default()
     }
 
     pub fn handles(&self) -> impl Iterator<Item = &Handle<BundleAsset>> {
