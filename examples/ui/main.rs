@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use crate::{
     components::Font,
     locales::{de, en, ru},
