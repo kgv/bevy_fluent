@@ -17,8 +17,15 @@ use serde::Deserialize;
 use std::{ops::Deref, path::PathBuf, str, sync::Arc};
 use unic_langid::LanguageIdentifier;
 
+/// Helper that may be used to implement custom asset loaders for [`BundleAsset`].
+///
+/// For example, the default asset loader loads from the RON format, but you could implement your
+/// own asset loader that loads from the YAML format.
+///
+/// Whatever format you use, you must  convert it to a [`LocaleData`] struct and pass it to this
+/// funciton in your asset loader to load the [`BundleAsset`].
 #[instrument(fields(path = %load_context.path().display()), ret, skip_all)]
-async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
+pub async fn load_bundle_asset(data: LocaleData, load_context: &mut LoadContext<'_>) -> Result<()> {
     let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
     let mut asset_paths = Vec::new();
     let parent = load_context.path().parent();
@@ -70,7 +77,7 @@ impl AssetLoader for BundleAssetLoader {
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load(ron::de::from_bytes(bytes)?, load_context).await })
+        Box::pin(async move { load_bundle_asset(ron::de::from_bytes(bytes)?, load_context).await })
     }
 
     fn extensions(&self) -> &[&str] {
@@ -80,7 +87,7 @@ impl AssetLoader for BundleAssetLoader {
 
 /// Data
 #[derive(Debug, Deserialize)]
-struct Data {
-    locale: LanguageIdentifier,
-    resources: Vec<PathBuf>,
+pub struct LocaleData {
+    pub locale: LanguageIdentifier,
+    pub resources: Vec<PathBuf>,
 }
