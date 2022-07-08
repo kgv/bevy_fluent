@@ -70,16 +70,26 @@ impl AssetLoader for BundleAssetLoader {
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
-        Box::pin(async move { load(ron::de::from_bytes(bytes)?, load_context).await })
+        Box::pin(async move {
+            let path = load_context.path().to_string_lossy();
+            if path.ends_with(".ron") {
+                load(ron::de::from_bytes(bytes)?, load_context).await
+            } else if path.ends_with(".yaml") || path.ends_with("yml") {
+                load(serde_yaml::from_slice(bytes)?, load_context).await
+            } else {
+                unreachable!("We already check all the supported extensions.");
+            }
+        })
     }
 
     fn extensions(&self) -> &[&str] {
-        &["ftl.ron"]
+        &["ftl.ron", "ftl.yml", "ftl.yaml"]
     }
 }
 
 /// Data
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 struct Data {
     locale: LanguageIdentifier,
     resources: Vec<PathBuf>,
