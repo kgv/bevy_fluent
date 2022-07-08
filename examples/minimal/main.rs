@@ -23,7 +23,7 @@ fn localized_hello_world(
     assets: Res<Assets<BundleAsset>>,
     mut handle: Local<Option<Handle<BundleAsset>>>,
 ) {
-    let handle = &*handle.get_or_insert_with(|| asset_server.load("locales/en-US/main.ftl.ron"));
+    let handle = &*handle.get_or_insert_with(|| asset_server.load("locales/en-US/main.ftl.yml"));
     if let LoadState::Loaded = asset_server.get_load_state(handle) {
         let bundle = assets.get(handle).unwrap();
         assert!(matches!(bundle.content("hello-world"), Some(content) if content == "hello world"));

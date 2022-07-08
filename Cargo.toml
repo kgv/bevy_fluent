@@ -26,6 +26,7 @@ globset = "0.4.9"
 indexmap = { version = "1.9.1", features = ["serde"] }
 intl-memoizer = "0.5.1"
 ron = "0.7.1"
+serde_yaml = "0.8.24"
 serde = { version = "1.0.137", features = ["derive"] }
 thiserror = "1.0.25"
 unic-langid = { version = "0.9.0", features = ["serde"] }
