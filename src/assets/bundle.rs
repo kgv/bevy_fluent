@@ -1,6 +1,6 @@
 //! Bundle asset
 
-use crate::assets::resource;
+use crate::{assets::resource, ResourceAsset};
 use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
@@ -39,8 +39,17 @@ async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
         }
         asset_paths.push(AssetPath::new(path, None));
     }
+
+    let resource_handles = asset_paths
+        .iter()
+        .map(|path| load_context.get_handle(path.clone()))
+        .collect::<Vec<_>>();
     load_context.set_default_asset(
-        LoadedAsset::new(BundleAsset(Arc::new(bundle))).with_dependencies(asset_paths),
+        LoadedAsset::new(BundleAsset {
+            bundle: Arc::new(bundle),
+            resource_handles,
+        })
+        .with_dependencies(asset_paths),
     );
     Ok(())
 }
@@ -50,13 +59,17 @@ async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
 /// Collection of [`FluentResource`]s for a single locale
 #[derive(Clone, TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
-pub struct BundleAsset(pub(crate) Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>);
+pub struct BundleAsset {
+    pub(crate) bundle: Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
+    /// The resource handles that this bundle depends on
+    pub(crate) resource_handles: Vec<Handle<ResourceAsset>>,
+}
 
 impl Deref for BundleAsset {
     type Target = FluentBundle<Arc<FluentResource>, IntlLangMemoizer>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.bundle
     }
 }
 
