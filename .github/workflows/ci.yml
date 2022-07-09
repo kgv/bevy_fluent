@@ -28,6 +28,10 @@ jobs:
         toolchain: ${{ matrix.toolchain }}
         components: rustfmt, clippy
         override: true
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --all-features
     - name: Install alsa and udev
       run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       if: runner.os == 'linux'
