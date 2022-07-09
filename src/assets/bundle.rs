@@ -74,7 +74,7 @@ impl AssetLoader for BundleAssetLoader {
             let path = load_context.path().to_string_lossy();
             if path.ends_with(".ron") {
                 load(ron::de::from_bytes(bytes)?, load_context).await
-            } else if path.ends_with(".yaml") || path.ends_with("yml") {
+            } else if path.ends_with(".yaml") || path.ends_with(".yml") {
                 load(serde_yaml::from_slice(bytes)?, load_context).await
             } else {
                 unreachable!("We already check all the supported extensions.");
@@ -83,7 +83,7 @@ impl AssetLoader for BundleAssetLoader {
     }
 
     fn extensions(&self) -> &[&str] {
-        &["ftl.ron", "ftl.yml", "ftl.yaml"]
+        &["ftl.ron", "ftl.yaml", "ftl.yml"]
     }
 }
 
