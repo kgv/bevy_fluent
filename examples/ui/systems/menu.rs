@@ -21,7 +21,7 @@ pub fn setup(
         .to_sentence_case();
     // camera
     commands
-        .spawn_bundle(UiCameraBundle::default())
+        .spawn_bundle(Camera2dBundle::default())
         .insert(Menu);
     // ui
     commands
@@ -53,14 +53,13 @@ pub fn setup(
                 })
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle {
-                        text: Text::with_section(
+                        text: Text::from_section(
                             &choose_language,
                             TextStyle {
                                 font: font.0.clone(),
                                 font_size: 64.0,
                                 color: Color::WHITE,
                             },
-                            default(),
                         ),
                         ..default()
                     });
@@ -72,7 +71,7 @@ pub fn setup(
                         size: Size::new(Val::Percent(100.0), Val::Undefined),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
-                        margin: Rect::all(Val::Auto),
+                        margin: UiRect::all(Val::Auto),
                         ..default()
                     },
                     color: Color::NONE.into(),
@@ -94,14 +93,13 @@ pub fn setup(
                         .insert(PreviousButton)
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     "<",
                                     TextStyle {
                                         font: font.0.clone(),
                                         font_size: 64.0,
                                         color: Color::WHITE,
                                     },
-                                    default(),
                                 ),
                                 ..default()
                             });
@@ -120,14 +118,13 @@ pub fn setup(
                         })
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     &locale,
                                     TextStyle {
                                         font: font.0.clone(),
                                         font_size: 64.0,
                                         color: Color::WHITE,
                                     },
-                                    default(),
                                 ),
                                 ..default()
                             });
@@ -147,14 +144,13 @@ pub fn setup(
                         .insert(NextButton)
                         .with_children(|parent| {
                             parent.spawn_bundle(TextBundle {
-                                text: Text::with_section(
+                                text: Text::from_section(
                                     ">",
                                     TextStyle {
                                         font: font.0.clone(),
                                         font_size: 64.0,
                                         color: Color::WHITE,
                                     },
-                                    default(),
                                 ),
                                 ..default()
                             });

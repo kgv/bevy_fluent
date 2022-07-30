@@ -26,9 +26,9 @@ impl<T: AssetIo + ?Sized> AssetIoExt for T {
         directory: &Path,
         callback: &mut dyn FnMut(PathBuf),
     ) -> Result<(), AssetIoError> {
-        if self.is_directory(directory) {
+        if self.is_dir(directory) {
             for path in self.read_directory(directory)? {
-                if self.is_directory(&path) {
+                if self.is_dir(&path) {
                     self.visit_directory(&path, callback)?;
                 } else {
                     callback(path);
@@ -56,7 +56,7 @@ impl AssetServerExt for AssetServer {
         let path = Path::new(glob);
         let matcher = Glob::new(glob)?.compile_matcher();
         let path = path
-            .find_prefix(|path| self.asset_io().is_directory(path))
+            .find_prefix(|path| self.asset_io().is_dir(path))
             .unwrap_or_else(|_| Path::new(""));
         trace!(base = ?path);
         Ok(self
