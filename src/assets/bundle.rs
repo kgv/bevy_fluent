@@ -71,13 +71,15 @@ impl AssetLoader for BundleAssetLoader {
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<()>> {
         Box::pin(async move {
-            let path = load_context.path().to_string_lossy();
-            if path.ends_with(".ron") {
-                load(ron::de::from_bytes(bytes)?, load_context).await
-            } else if path.ends_with(".yaml") || path.ends_with(".yml") {
-                load(serde_yaml::from_slice(bytes)?, load_context).await
-            } else {
-                unreachable!("We already check all the supported extensions.");
+            let path = load_context.path();
+            match path.extension() {
+                Some(extension) if extension == "ron" => {
+                    load(ron::de::from_bytes(bytes)?, load_context).await
+                }
+                Some(extension) if extension == "yaml" || extension == "yml" => {
+                    load(serde_yaml::from_slice(bytes)?, load_context).await
+                }
+                _ => unreachable!("We already check all the supported extensions."),
             }
         })
     }
