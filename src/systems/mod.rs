@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 
-use bevy::prelude::{warn, AssetEvent, Assets, EventReader, Res, ResMut};
+use bevy::prelude::{warn, AssetEvent, Assets, EventReader, Handle, Res, ResMut};
 use fluent::bundle::FluentBundle;
 
 use crate::{BundleAsset, ResourceAsset};
@@ -24,18 +24,18 @@ pub(crate) fn update_bundle_asset(
         // If a resource asset is modified
         if let AssetEvent::Modified { handle } = event {
             // Look for all the bundles that that resource was used in
-            for (bundle_handle, bundle_asset) in bundle_assets.iter() {
+            for (bundle_id, bundle_asset) in bundle_assets.iter() {
                 for resource_handle in &bundle_asset.resource_handles {
                     if handle.id == resource_handle.id {
-                        bundles_to_update.push(bundle_handle);
+                        bundles_to_update.push(Handle::weak(bundle_id));
                     }
                 }
             }
 
             // Update all bundles that included the resource
-            for bundle_id in bundles_to_update {
+            for handle in bundles_to_update {
                 // Get a mutable reference to the old bundle
-                let bundle = bundle_assets.get_mut(bundle_id).unwrap();
+                let bundle = bundle_assets.get_mut(&handle).unwrap();
 
                 // Create a new bundle to replace it
                 let mut new_bundle = FluentBundle::new_concurrent(bundle.locales.clone());
