@@ -19,7 +19,7 @@ exclude = [".github/**/*"]
 
 [dependencies]
 anyhow = "1.0.58"
-bevy = { version = "0.8.0", default-features = false, features = ["bevy_asset"] }
+bevy = { version = "0.9.0", default-features = false, features = ["bevy_asset"] }
 fluent = "0.16.0"
 fluent-langneg = "0.13.0"
 globset = "0.4.9"
@@ -34,7 +34,7 @@ unic-langid = { version = "0.9.0", features = ["serde"] }
 uuid = { version = "1.1.2", features = ["serde", "v4", "v5"] }
 
 [dev-dependencies]
-bevy = { version = "0.8.0", default-features = false, features = [
+bevy = { version = "0.9.0", default-features = false, features = [
   "bevy_winit",
   "render",
   "x11",
