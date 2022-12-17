@@ -1,5 +1,3 @@
-pub use self::{bundle::BundleExt, content::Content};
-
-pub mod content;
+pub use self::bundle::BundleExt;
 
 mod bundle;

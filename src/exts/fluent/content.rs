@@ -141,7 +141,7 @@ impl<'a, T: Borrow<FluentArgs<'a>>> Display for Request<'_, T> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, r#""{}"#, self.id)?;
         if let Some(attribute) = &self.attr {
-            write!(f, ".{}", attribute)?;
+            write!(f, ".{attribute}")?;
         }
         if let Some(args) = &self.args {
             let mut args = args.borrow().iter().peekable();
@@ -149,9 +149,9 @@ impl<'a, T: Borrow<FluentArgs<'a>>> Display for Request<'_, T> {
                 f.write_char('?')?;
             }
             for (key, value) in args {
-                write!(f, "{}=", key)?;
+                write!(f, "{key}=")?;
                 match value {
-                    FluentValue::String(key) => write!(f, "{}", key)?,
+                    FluentValue::String(key) => write!(f, "{key}")?,
                     FluentValue::Number(key) => write!(f, "{}", key.as_string())?,
                     // FluentValue::Custom(Box<dyn FluentType + Send>),
                     _ => {}

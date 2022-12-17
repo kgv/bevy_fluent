@@ -1,14 +1,12 @@
 //! Localization asset
 
-use crate::{
-    exts::fluent::{content::Request, BundleExt, Content},
-    BundleAsset,
-};
+use crate::{exts::fluent::BundleExt, BundleAsset};
 use bevy::{
     prelude::*,
     utils::tracing::{self, instrument},
 };
 use fluent::FluentArgs;
+use fluent_content::{Content, Request};
 use indexmap::IndexMap;
 use std::{
     borrow::Borrow,
@@ -19,7 +17,7 @@ use unic_langid::LanguageIdentifier;
 /// Localization
 ///
 /// Collection of [`BundleAsset`]s.
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct Localization(IndexMap<Handle<BundleAsset>, BundleAsset>);
 
 impl Localization {

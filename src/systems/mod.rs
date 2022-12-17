@@ -26,7 +26,7 @@ pub(crate) fn update_bundle_asset(
             // Look for all the bundles that that resource was used in
             for (bundle_id, bundle_asset) in bundle_assets.iter() {
                 for resource_handle in &bundle_asset.resource_handles {
-                    if handle.id == resource_handle.id {
+                    if handle.id() == resource_handle.id() {
                         bundles_to_update.push(Handle::weak(bundle_id));
                     }
                 }

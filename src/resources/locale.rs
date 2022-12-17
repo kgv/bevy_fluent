@@ -4,7 +4,7 @@ use std::slice::from_ref;
 use unic_langid::LanguageIdentifier;
 
 /// Locale
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Resource)]
 pub struct Locale {
     pub requested: LanguageIdentifier,
     pub default: Option<LanguageIdentifier>,
