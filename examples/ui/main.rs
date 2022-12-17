@@ -1,21 +1,19 @@
 #![allow(clippy::type_complexity)]
 
 use crate::{
-    components::Font,
     locales::{de, en, ru},
-    resources::Locales,
+    resources::{Font, Locales},
     systems::{load, menu},
 };
-use bevy::{asset::AssetServerSettings, prelude::*};
+use bevy::prelude::*;
 use bevy_fluent::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(AssetServerSettings {
+        .add_plugins(DefaultPlugins.set(AssetPlugin {
             asset_folder: "examples/ui/assets".to_string(),
             ..default()
-        })
-        .add_plugins(DefaultPlugins)
+        }))
         .add_plugin(FluentPlugin)
         .insert_resource(Locale::new(ru::RU).with_default(en::US))
         .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))

@@ -1,18 +1,15 @@
-use bevy::{
-    asset::{AssetServerSettings, LoadState},
-    prelude::*,
-};
+use bevy::{asset::LoadState, prelude::*};
 use bevy_fluent::prelude::*;
+use fluent_content::Content;
 use unic_langid::langid;
 
 pub fn main() {
     App::new()
-        .insert_resource(AssetServerSettings {
+        .insert_resource(Locale::new(langid!("en-US")))
+        .add_plugins(DefaultPlugins.set(AssetPlugin {
             asset_folder: "examples/minimal/assets".to_string(),
             ..default()
-        })
-        .insert_resource(Locale::new(langid!("en-US")))
-        .add_plugins(DefaultPlugins)
+        }))
         .add_plugin(FluentPlugin)
         .add_system(localized_hello_world)
         .run();

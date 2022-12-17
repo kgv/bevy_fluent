@@ -1,11 +1,13 @@
 use crate::{
-    components::{Font, Menu, NextButton, PreviousButton},
+    components::{Menu, NextButton, PreviousButton},
+    resources::Font,
     systems::parameters::Swiper,
     to_sentence_case::ToSentenceCase,
     GameState,
 };
 use bevy::prelude::*;
 use bevy_fluent::prelude::*;
+use fluent_content::Content;
 
 pub fn setup(
     mut commands: Commands,
@@ -20,12 +22,10 @@ pub fn setup(
         .unwrap()
         .to_sentence_case();
     // camera
-    commands
-        .spawn_bundle(Camera2dBundle::default())
-        .insert(Menu);
+    commands.spawn(Camera2dBundle::default()).insert(Menu);
     // ui
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 position_type: PositionType::Absolute,
@@ -34,25 +34,25 @@ pub fn setup(
                 justify_content: JustifyContent::FlexStart,
                 ..default()
             },
-            color: Color::NONE.into(),
+            background_color: Color::NONE.into(),
             ..default()
         })
         .insert(Menu)
         .with_children(|parent| {
             // Header
             parent
-                .spawn_bundle(NodeBundle {
+                .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.0), Val::Px(128.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    color: Color::DARK_GRAY.into(),
+                    background_color: Color::DARK_GRAY.into(),
                     ..default()
                 })
                 .with_children(|parent| {
-                    parent.spawn_bundle(TextBundle {
+                    parent.spawn(TextBundle {
                         text: Text::from_section(
                             &choose_language,
                             TextStyle {
@@ -66,7 +66,7 @@ pub fn setup(
                 });
             // Content
             parent
-                .spawn_bundle(NodeBundle {
+                .spawn(NodeBundle {
                     style: Style {
                         size: Size::new(Val::Percent(100.0), Val::Undefined),
                         justify_content: JustifyContent::Center,
@@ -74,12 +74,12 @@ pub fn setup(
                         margin: UiRect::all(Val::Auto),
                         ..default()
                     },
-                    color: Color::NONE.into(),
+                    background_color: Color::NONE.into(),
                     ..default()
                 })
                 .with_children(|parent| {
                     parent
-                        .spawn_bundle(ButtonBundle {
+                        .spawn(ButtonBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(10.0), Val::Percent(10.0)),
                                 min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
@@ -87,12 +87,12 @@ pub fn setup(
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            color: Color::GRAY.into(),
+                            background_color: Color::GRAY.into(),
                             ..default()
                         })
                         .insert(PreviousButton)
                         .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
+                            parent.spawn(TextBundle {
                                 text: Text::from_section(
                                     "<",
                                     TextStyle {
@@ -105,7 +105,7 @@ pub fn setup(
                             });
                         });
                     parent
-                        .spawn_bundle(NodeBundle {
+                        .spawn(NodeBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(80.0), Val::Percent(10.0)),
                                 min_size: Size::new(Val::Px(256.0), Val::Px(64.0)),
@@ -113,11 +113,11 @@ pub fn setup(
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            color: Color::GRAY.into(),
+                            background_color: Color::GRAY.into(),
                             ..default()
                         })
                         .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
+                            parent.spawn(TextBundle {
                                 text: Text::from_section(
                                     &locale,
                                     TextStyle {
@@ -130,7 +130,7 @@ pub fn setup(
                             });
                         });
                     parent
-                        .spawn_bundle(ButtonBundle {
+                        .spawn(ButtonBundle {
                             style: Style {
                                 size: Size::new(Val::Percent(10.0), Val::Percent(10.0)),
                                 min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
@@ -138,12 +138,12 @@ pub fn setup(
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            color: Color::GRAY.into(),
+                            background_color: Color::GRAY.into(),
                             ..default()
                         })
                         .insert(NextButton)
                         .with_children(|parent| {
-                            parent.spawn_bundle(TextBundle {
+                            parent.spawn(TextBundle {
                                 text: Text::from_section(
                                     ">",
                                     TextStyle {
@@ -166,7 +166,7 @@ pub fn cleanup(mut commands: Commands, query: Query<Entity, With<Menu>>) {
 }
 
 pub fn interaction(
-    mut query: Query<(&Interaction, &mut UiColor), (Changed<Interaction>, With<Button>)>,
+    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, mut color) in query.iter_mut() {
         *color = match interaction {

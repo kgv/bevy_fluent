@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2021"
 description = "Bevy plugin for localization using Fluent"
@@ -18,25 +18,26 @@ categories = [
 exclude = [".github/**/*"]
 
 [dependencies]
-anyhow = "1.0.58"
-bevy = { version = "0.8.0", default-features = false, features = ["bevy_asset"] }
+anyhow = "1.0.66"
+bevy = { version = "0.9.1", default-features = false, features = ["bevy_asset"] }
 fluent = "0.16.0"
 fluent-langneg = "0.13.0"
+fluent_content = "0.0.3"
 globset = "0.4.9"
-indexmap = { version = "1.9.1", features = ["serde"] }
+indexmap = { version = "1.9.2", features = ["serde"] }
 intl-memoizer = "0.5.1"
-ron = "0.7.1"
-serde = { version = "1.0.137", features = ["derive"] }
-serde_yaml = "0.9.2"
-thiserror = "1.0.25"
-tracing = "0.1.36"
-unic-langid = { version = "0.9.0", features = ["serde"] }
-uuid = { version = "1.1.2", features = ["serde", "v4", "v5"] }
+ron = "0.8.0"
+serde = { version = "1.0.150", features = ["derive"] }
+serde_yaml = "0.9.14"
+thiserror = "1.0.37"
+tracing = "0.1.37"
+unic-langid = { version = "0.9.1", features = ["serde"] }
+uuid = { version = "1.2.2", features = ["serde", "v4", "v5"] }
 
 [dev-dependencies]
-bevy = { version = "0.8.0", default-features = false, features = [
+bevy = { version = "0.9.1", default-features = false, features = [
   "bevy_winit",
   "render",
   "x11",
 ] }
-unic-langid = { version = "0.9.0", features = ["macros"] }
+unic-langid = { version = "0.9.1", features = ["macros"] }
