@@ -43,7 +43,7 @@ pub fn setup(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(128.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Percent(25.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -68,29 +68,30 @@ pub fn setup(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Undefined),
+                        size: Size::new(Val::Percent(100.0), Val::Percent(75.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         margin: UiRect::all(Val::Auto),
                         ..default()
                     },
-                    background_color: Color::NONE.into(),
                     ..default()
                 })
                 .with_children(|parent| {
                     parent
-                        .spawn(ButtonBundle {
-                            style: Style {
-                                size: Size::new(Val::Percent(10.0), Val::Percent(10.0)),
-                                min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
+                        .spawn((
+                            PreviousButton,
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(10.0), Val::Percent(20.0)),
+                                    min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::RED.into(),
                                 ..default()
                             },
-                            background_color: Color::GRAY.into(),
-                            ..default()
-                        })
-                        .insert(PreviousButton)
+                        ))
                         .with_children(|parent| {
                             parent.spawn(TextBundle {
                                 text: Text::from_section(
@@ -107,7 +108,7 @@ pub fn setup(
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(80.0), Val::Percent(10.0)),
+                                size: Size::new(Val::Percent(80.0), Val::Percent(20.0)),
                                 min_size: Size::new(Val::Px(256.0), Val::Px(64.0)),
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
@@ -130,18 +131,20 @@ pub fn setup(
                             });
                         });
                     parent
-                        .spawn(ButtonBundle {
-                            style: Style {
-                                size: Size::new(Val::Percent(10.0), Val::Percent(10.0)),
-                                min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
+                        .spawn((
+                            NextButton,
+                            ButtonBundle {
+                                style: Style {
+                                    size: Size::new(Val::Percent(10.0), Val::Percent(20.0)),
+                                    min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    ..default()
+                                },
+                                background_color: Color::GRAY.into(),
                                 ..default()
                             },
-                            background_color: Color::GRAY.into(),
-                            ..default()
-                        })
-                        .insert(NextButton)
+                        ))
                         .with_children(|parent| {
                             parent.spawn(TextBundle {
                                 text: Text::from_section(
@@ -179,23 +182,23 @@ pub fn interaction(
 
 pub fn next(
     mut swiper: Swiper,
-    mut game_state: ResMut<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
 ) {
     if let Ok(Interaction::Clicked) = query.get_single() {
         swiper.next();
-        game_state.set(GameState::Load).unwrap();
+        next_state.set(GameState::Load);
     }
 }
 
 pub fn previous(
     mut swiper: Swiper,
-    mut game_state: ResMut<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
 ) {
     if let Ok(Interaction::Clicked) = query.get_single() {
         swiper.previous();
-        game_state.set(GameState::Load).unwrap();
+        next_state.set(GameState::Load);
     }
 }
 

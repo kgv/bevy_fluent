@@ -9,18 +9,18 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(Handles(handles));
 }
 
-pub fn load(
+pub fn update(
     mut commands: Commands,
     localization_builder: LocalizationBuilder,
     asset_server: Res<AssetServer>,
-    mut game_state: ResMut<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     handles: Res<Handles>,
 ) {
     if let LoadState::Loaded = asset_server.get_group_load_state(handles.0.iter().map(Handle::id)) {
         let localization = localization_builder.build(&handles.0);
         commands.remove_resource::<Handles>();
         commands.insert_resource(localization);
-        game_state.set(GameState::Menu).unwrap();
+        next_state.set(GameState::Menu);
     }
 }
 

@@ -5,18 +5,16 @@
 
 use crate::{exts::fluent::BundleExt, BundleAsset, Locale, Localization};
 use bevy::{ecs::system::SystemParam, prelude::*};
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 /// Localization builder
 #[derive(SystemParam)]
-pub struct LocalizationBuilder<'w, 's> {
+pub struct LocalizationBuilder<'w> {
     assets: Res<'w, Assets<BundleAsset>>,
     locale: Res<'w, Locale>,
-    #[system_param(ignore)]
-    phantom_data: PhantomData<&'s ()>,
 }
 
-impl LocalizationBuilder<'_, '_> {
+impl LocalizationBuilder<'_> {
     pub fn build<'a>(
         &self,
         handles: impl IntoIterator<Item = &'a Handle<BundleAsset>>,

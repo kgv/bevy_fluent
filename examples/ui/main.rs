@@ -18,22 +18,25 @@ fn main() {
         .insert_resource(Locale::new(ru::RU).with_default(en::US))
         .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))
         .init_resource::<Font>()
-        .add_state(GameState::Load)
-        .add_system_set(SystemSet::on_enter(GameState::Load).with_system(load::setup))
-        .add_system_set(SystemSet::on_update(GameState::Load).with_system(load::load))
-        .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(menu::setup))
-        .add_system_set(
-            SystemSet::on_update(GameState::Menu)
-                .with_system(menu::interaction)
-                .with_system(menu::next)
-                .with_system(menu::previous),
+        .add_state::<GameState>()
+        .add_systems((
+            load::setup.in_schedule(OnEnter(GameState::Load)),
+            load::update.in_set(OnUpdate(GameState::Load)),
+        ))
+        // TODO: [nested tuples of systems](https://github.com/bevyengine/bevy/issues/7880)
+        .add_systems((
+            menu::setup.in_schedule(OnEnter(GameState::Menu)),
+            menu::cleanup.in_schedule(OnExit(GameState::Menu)),
+        ))
+        .add_systems(
+            (menu::interaction, menu::next, menu::previous).in_set(OnUpdate(GameState::Menu)),
         )
-        .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(menu::cleanup))
         .run();
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, States)]
 pub enum GameState {
+    #[default]
     Load,
     Menu,
 }

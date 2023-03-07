@@ -18,7 +18,7 @@ impl Plugin for FluentPlugin {
         app.add_asset::<ResourceAsset>()
             .init_asset_loader::<ResourceAssetLoader>()
             .add_asset::<BundleAsset>()
-            .init_asset_loader::<BundleAssetLoader>()
-            .add_system_to_stage(CoreStage::PreUpdate, update_bundle_asset);
+            .init_asset_loader::<BundleAssetLoader>() 
+            .add_system(update_bundle_asset.in_base_set(CoreSet::PreUpdate));
     }
 }
