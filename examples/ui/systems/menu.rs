@@ -88,7 +88,7 @@ pub fn setup(
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::RED.into(),
+                                background_color: Color::GRAY.into(),
                                 ..default()
                             },
                         ))
