@@ -3,14 +3,10 @@
 //! Any entity located directly in this module is
 //! [`System`](bevy::ecs::system::System).
 
-use std::sync::Arc;
-
+use crate::{BundleAsset, ResourceAsset};
 use bevy::prelude::{warn, AssetEvent, Assets, EventReader, Handle, Res, ResMut};
 use fluent::bundle::FluentBundle;
-
-use crate::{BundleAsset, ResourceAsset};
-
-pub mod parameters;
+use std::sync::Arc;
 
 /// Re-loads bundle assets when the resources they depend on changes.
 pub(crate) fn update_bundle_asset(
@@ -60,3 +56,5 @@ pub(crate) fn update_bundle_asset(
         }
     }
 }
+
+pub mod parameters;
