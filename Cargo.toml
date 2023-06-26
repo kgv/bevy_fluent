@@ -26,7 +26,7 @@ fluent = "0.16.0"
 fluent-langneg = "0.13.0"
 fluent_content = "0.0.5"
 globset = "0.4.10"
-indexmap = { version = "1.9.3", features = ["serde"] }
+indexmap = { version = "2.0.0", features = ["serde"] }
 intl-memoizer = "0.5.1"
 ron = "0.8.0"
 serde = { version = "1.0.160", features = ["derive"] }
