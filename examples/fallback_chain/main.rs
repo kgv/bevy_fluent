@@ -10,8 +10,8 @@ pub fn main() {
             asset_folder: "examples/fallback_chain/assets".to_string(),
             ..default()
         }))
-        .add_plugin(FluentPlugin)
-        .add_system(localized_hello_world)
+        .add_plugins(FluentPlugin)
+        .add_systems(Update, localized_hello_world)
         .run();
 }
 
