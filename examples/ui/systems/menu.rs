@@ -27,7 +27,8 @@ pub fn setup(
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 position_type: PositionType::Absolute,
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Center,
@@ -43,7 +44,8 @@ pub fn setup(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(25.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(25.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -68,7 +70,8 @@ pub fn setup(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Percent(75.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(75.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         margin: UiRect::all(Val::Auto),
@@ -82,8 +85,10 @@ pub fn setup(
                             PreviousButton,
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(10.0), Val::Percent(20.0)),
-                                    min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                                    width: Val::Percent(10.0),
+                                    height: Val::Percent(20.0),
+                                    min_width: Val::Px(64.0),
+                                    min_height: Val::Px(64.0),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
                                     ..default()
@@ -108,8 +113,10 @@ pub fn setup(
                     parent
                         .spawn(NodeBundle {
                             style: Style {
-                                size: Size::new(Val::Percent(80.0), Val::Percent(20.0)),
-                                min_size: Size::new(Val::Px(256.0), Val::Px(64.0)),
+                                width: Val::Percent(80.0),
+                                height: Val::Percent(20.0),
+                                min_width: Val::Px(256.0),
+                                min_height: Val::Px(64.0),
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
                                 ..default()
@@ -135,8 +142,10 @@ pub fn setup(
                             NextButton,
                             ButtonBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(10.0), Val::Percent(20.0)),
-                                    min_size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                                    width: Val::Percent(10.0),
+                                    height: Val::Percent(20.0),
+                                    min_width: Val::Px(64.0),
+                                    min_height: Val::Px(64.0),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
                                     ..default()
@@ -173,7 +182,7 @@ pub fn interaction(
 ) {
     for (interaction, mut color) in query.iter_mut() {
         *color = match interaction {
-            Interaction::Clicked => Color::DARK_GRAY.into(),
+            Interaction::Pressed => Color::DARK_GRAY.into(),
             Interaction::Hovered => Color::SILVER.into(),
             Interaction::None => Color::GRAY.into(),
         }
@@ -185,7 +194,7 @@ pub fn next(
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
 ) {
-    if let Ok(Interaction::Clicked) = query.get_single() {
+    if let Ok(Interaction::Pressed) = query.get_single() {
         swiper.next();
         next_state.set(GameState::Load);
     }
@@ -196,7 +205,7 @@ pub fn previous(
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
 ) {
-    if let Ok(Interaction::Clicked) = query.get_single() {
+    if let Ok(Interaction::Pressed) = query.get_single() {
         swiper.previous();
         next_state.set(GameState::Load);
     }

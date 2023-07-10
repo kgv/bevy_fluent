@@ -4,7 +4,7 @@ use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, LoadContext, LoadedAsset},
     prelude::*,
-    reflect::TypeUuid,
+    reflect::{TypePath, TypeUuid},
     utils::{
         tracing::{self, instrument},
         BoxedFuture,
@@ -36,7 +36,7 @@ fn load(data: Arc<FluentResource>, load_context: &mut LoadContext<'_>) {
 }
 
 /// [`FluentResource`](fluent::FluentResource) wrapper
-#[derive(Clone, Debug, TypeUuid)]
+#[derive(Clone, Debug, TypePath, TypeUuid)]
 #[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
 pub struct ResourceAsset(pub(crate) Arc<FluentResource>);
 

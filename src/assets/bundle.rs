@@ -5,7 +5,7 @@ use anyhow::Result;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
     prelude::*,
-    reflect::TypeUuid,
+    reflect::{TypePath, TypeUuid},
     utils::{
         tracing::{self, instrument},
         BoxedFuture,
@@ -57,7 +57,7 @@ async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
 /// [`FluentBundle`](fluent::bundle::FluentBundle) wrapper
 ///
 /// Collection of [`FluentResource`]s for a single locale
-#[derive(Clone, TypeUuid)]
+#[derive(Clone, TypePath, TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
 pub struct BundleAsset {
     pub(crate) bundle: Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,

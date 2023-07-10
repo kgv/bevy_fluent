@@ -14,22 +14,18 @@ fn main() {
             asset_folder: "examples/ui/assets".to_string(),
             ..default()
         }))
-        .add_plugin(FluentPlugin)
+        .add_plugins(FluentPlugin)
         .insert_resource(Locale::new(ru::RU).with_default(en::US))
         .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))
         .init_resource::<Font>()
         .add_state::<GameState>()
-        .add_systems((
-            load::setup.in_schedule(OnEnter(GameState::Load)),
-            load::update.in_set(OnUpdate(GameState::Load)),
-        ))
-        // TODO: [nested tuples of systems](https://github.com/bevyengine/bevy/issues/7880)
-        .add_systems((
-            menu::setup.in_schedule(OnEnter(GameState::Menu)),
-            menu::cleanup.in_schedule(OnExit(GameState::Menu)),
-        ))
+        .add_systems(OnEnter(GameState::Load), load::setup)
+        .add_systems(Update, load::update.run_if(in_state(GameState::Load)))
+        .add_systems(OnEnter(GameState::Menu), menu::setup)
+        .add_systems(OnExit(GameState::Menu), menu::cleanup)
         .add_systems(
-            (menu::interaction, menu::next, menu::previous).in_set(OnUpdate(GameState::Menu)),
+            Update,
+            (menu::interaction, menu::next, menu::previous).run_if(in_state(GameState::Menu)),
         )
         .run();
 }
