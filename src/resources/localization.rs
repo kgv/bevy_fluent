@@ -1,18 +1,17 @@
 //! Localization asset
 
-use crate::{exts::fluent::BundleExt, BundleAsset};
-use bevy::{
-    prelude::*,
-    utils::tracing::{self, instrument},
-};
-use fluent::FluentArgs;
-use fluent_content::{Content, Request};
-use indexmap::IndexMap;
 use std::{
     borrow::Borrow,
     fmt::{self, Debug, Formatter},
 };
+
+use bevy::{prelude::*, utils::tracing::instrument};
+use fluent::{FluentArgs, FluentError};
+use fluent_content::{Content, Request};
+use indexmap::IndexMap;
 use unic_langid::LanguageIdentifier;
+
+use crate::{exts::fluent::BundleExt, BundleAsset};
 
 /// Localization
 ///
@@ -36,6 +35,21 @@ impl Localization {
     pub fn locales(&self) -> impl Iterator<Item = &LanguageIdentifier> {
         self.0.values().map(|bundle| bundle.locale())
     }
+
+    pub fn get_message(&self, id: &str, args: &FluentArgs) -> Option<String> {
+        for bundle in self.0.values() {
+            if let Some(msg) = bundle.get_message(id) {
+                let mut errors: Vec<FluentError> = vec![];
+
+                if let Some(value) =
+                    bundle.format_pattern(&msg.value().unwrap(), Some(args), &mut errors)
+                {
+                    return Some(value.to_string());
+                }
+            }
+        }
+        None
+    }
 }
 
 impl<'a, T, U> Content<'a, T, U> for Localization
@@ -43,7 +57,7 @@ where
     T: Copy + Into<Request<'a, U>>,
     U: Borrow<FluentArgs<'a>>,
 {
-    #[instrument(fields(request = %request.into()), skip_all)]
+    #[instrument(fields(request = % request.into()), skip_all)]
     fn content(&self, request: T) -> Option<String> {
         self.0.values().find_map(|bundle| {
             let content = bundle.content(request);
