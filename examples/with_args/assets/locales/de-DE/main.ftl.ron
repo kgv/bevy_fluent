@@ -1,0 +1,6 @@
+(
+    locale: "de-DE",
+    resources: [
+        "apples.ftl",
+    ]
+)

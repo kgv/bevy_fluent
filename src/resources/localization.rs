@@ -36,14 +36,22 @@ impl Localization {
         self.0.values().map(|bundle| bundle.locale())
     }
 
-    pub fn get_message(&self, id: &str, args: &FluentArgs) -> Option<String> {
+    pub fn get_message(&self, id: &str, args: &FluentArgs, remove_lrm: bool) -> Option<String> {
         for bundle in self.0.values() {
             if let Some(msg) = bundle.get_message(id) {
                 let mut errors: Vec<FluentError> = vec![];
 
                 let value = bundle.format_pattern(&msg.value().unwrap(), Some(args), &mut errors);
-                // value is already a Cow<str>, simply return its String representation
-                return Some(value.to_string());
+                // Clean the output from any LRM symbols if asked for
+                if remove_lrm {
+                    let cleaned_value = value
+                        .to_string()
+                        .replace("\u{2068}", "")
+                        .replace("\u{2069}", "");
+                    return Some(cleaned_value);
+                } else {
+                    return Some(value.to_string());
+                }
             }
         }
         None
