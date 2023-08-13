@@ -41,11 +41,9 @@ impl Localization {
             if let Some(msg) = bundle.get_message(id) {
                 let mut errors: Vec<FluentError> = vec![];
 
-                if let Some(value) =
-                    bundle.format_pattern(&msg.value().unwrap(), Some(args), &mut errors)
-                {
-                    return Some(value.to_string());
-                }
+                let value = bundle.format_pattern(&msg.value().unwrap(), Some(args), &mut errors);
+                // value is already a Cow<str>, simply return its String representation
+                return Some(value.to_string());
             }
         }
         None
