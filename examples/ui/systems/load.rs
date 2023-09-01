@@ -1,12 +1,13 @@
 use crate::GameState;
-use bevy::{asset::LoadState, prelude::*};
+use bevy::{
+    asset::{LoadState, LoadedFolder},
+    prelude::*,
+};
 use bevy_fluent::prelude::*;
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let handles = asset_server
-        .load_glob::<BundleAsset>("locales/**/menu.ftl.ron")
-        .unwrap();
-    commands.insert_resource(Handles(handles));
+    let handle = asset_server.load_folder("locales");
+    commands.insert_resource(LocaleFolder(handle));
 }
 
 pub fn update(
@@ -14,15 +15,15 @@ pub fn update(
     localization_builder: LocalizationBuilder,
     asset_server: Res<AssetServer>,
     mut next_state: ResMut<NextState<GameState>>,
-    handles: Res<Handles>,
+    locale_folder: Res<LocaleFolder>,
 ) {
-    if let LoadState::Loaded = asset_server.get_group_load_state(handles.0.iter().map(Handle::id)) {
-        let localization = localization_builder.build(&handles.0);
-        commands.remove_resource::<Handles>();
+    if let Some(LoadState::Loaded) = asset_server.get_load_state(&locale_folder.0) {
+        let localization = localization_builder.build(&locale_folder.0);
+        commands.remove_resource::<LocaleFolder>();
         commands.insert_resource(localization);
         next_state.set(GameState::Menu);
     }
 }
 
 #[derive(Resource)]
-pub struct Handles(Vec<Handle<BundleAsset>>);
+pub struct LocaleFolder(Handle<LoadedFolder>);

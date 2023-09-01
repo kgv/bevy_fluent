@@ -10,11 +10,13 @@ use bevy_fluent::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(AssetPlugin {
-            asset_folder: "examples/ui/assets".to_string(),
-            ..default()
-        }))
-        .add_plugins(FluentPlugin)
+        .add_plugins((
+            DefaultPlugins.set(AssetPlugin {
+                file_path: "examples/ui/assets".to_string(),
+                ..default()
+            }),
+            FluentPlugin,
+        ))
         .insert_resource(Locale::new(ru::RU).with_default(en::US))
         .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))
         .init_resource::<Font>()
