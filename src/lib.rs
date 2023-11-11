@@ -5,7 +5,6 @@
 #[doc(inline)]
 pub use self::{
     assets::{BundleAsset, ResourceAsset},
-    exts::bevy::AssetServerExt,
     plugins::FluentPlugin,
     resources::{Locale, Localization},
     systems::parameters::LocalizationBuilder,
@@ -14,9 +13,7 @@ pub use self::{
 /// `use bevy_fluent::prelude::*;` to import common assets, components and plugins
 pub mod prelude {
     #[doc(inline)]
-    pub use super::{
-        AssetServerExt, BundleAsset, FluentPlugin, Locale, Localization, LocalizationBuilder,
-    };
+    pub use super::{BundleAsset, FluentPlugin, Locale, Localization, LocalizationBuilder};
 }
 
 pub mod assets;

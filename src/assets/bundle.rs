@@ -1,9 +1,9 @@
 //! Bundle asset
 
-use crate::{assets::resource, ResourceAsset};
-use anyhow::Result;
+use super::{Error, Result};
+use crate::ResourceAsset;
 use bevy::{
-    asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
+    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
     reflect::{TypePath, TypeUuid},
     utils::{
@@ -13,63 +13,22 @@ use bevy::{
 };
 use fluent::{bundle::FluentBundle, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{ops::Deref, path::PathBuf, str, sync::Arc};
 use unic_langid::LanguageIdentifier;
-
-#[instrument(fields(path = %load_context.path().display()), ret, skip_all)]
-async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<()> {
-    let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
-    let mut asset_paths = Vec::new();
-    let parent = load_context.path().parent();
-    for mut path in data.resources {
-        if path.is_relative() {
-            if let Some(parent) = parent {
-                path = parent.join(path);
-            }
-        }
-        let bytes = load_context.read_asset_bytes(&path).await?;
-        let resource = resource::deserialize(&bytes)?;
-        if let Err(errors) = bundle.add_resource(resource) {
-            warn_span!("add_resource").in_scope(|| {
-                for error in errors {
-                    warn!(%error);
-                }
-            });
-        }
-        asset_paths.push(AssetPath::new(path, None));
-    }
-
-    let resource_handles = asset_paths
-        .iter()
-        .map(|path| load_context.get_handle(path.clone()))
-        .collect::<Vec<_>>();
-    load_context.set_default_asset(
-        LoadedAsset::new(BundleAsset {
-            bundle: Arc::new(bundle),
-            resource_handles,
-        })
-        .with_dependencies(asset_paths),
-    );
-    Ok(())
-}
 
 /// [`FluentBundle`](fluent::bundle::FluentBundle) wrapper
 ///
 /// Collection of [`FluentResource`]s for a single locale
-#[derive(Clone, TypePath, TypeUuid)]
+#[derive(Asset, Clone, TypePath, TypeUuid)]
 #[uuid = "929113bb-9187-44c3-87be-6027fc3b7ac5"]
-pub struct BundleAsset {
-    pub(crate) bundle: Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>,
-    /// The resource handles that this bundle depends on
-    pub(crate) resource_handles: Vec<Handle<ResourceAsset>>,
-}
+pub struct BundleAsset(pub(crate) Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>);
 
 impl Deref for BundleAsset {
     type Target = FluentBundle<Arc<FluentResource>, IntlLangMemoizer>;
 
     fn deref(&self) -> &Self::Target {
-        &self.bundle
+        &self.0
     }
 }
 
@@ -78,19 +37,26 @@ impl Deref for BundleAsset {
 pub struct BundleAssetLoader;
 
 impl AssetLoader for BundleAssetLoader {
+    type Asset = BundleAsset;
+    type Settings = ();
+    type Error = Error;
+
     fn load<'a>(
         &self,
-        bytes: &'a [u8],
+        reader: &'a mut Reader,
+        _: &'a Self::Settings,
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<()>> {
+    ) -> BoxedFuture<'a, Result<Self::Asset>> {
         Box::pin(async move {
             let path = load_context.path();
+            let mut content = String::new();
+            reader.read_to_string(&mut content).await?;
             match path.extension() {
                 Some(extension) if extension == "ron" => {
-                    load(ron::de::from_bytes(bytes)?, load_context).await
+                    load(ron::de::from_str(&content)?, load_context).await
                 }
                 Some(extension) if extension == "yaml" || extension == "yml" => {
-                    load(serde_yaml::from_slice(bytes)?, load_context).await
+                    load(serde_yaml::from_str(&content)?, load_context).await
                 }
                 _ => unreachable!("We already check all the supported extensions."),
             }
@@ -103,9 +69,31 @@ impl AssetLoader for BundleAssetLoader {
 }
 
 /// Data
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Data {
     locale: LanguageIdentifier,
     resources: Vec<PathBuf>,
+}
+
+#[instrument(fields(path = %load_context.path().display()), skip_all)]
+async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAsset> {
+    let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
+    for mut path in data.resources {
+        if path.is_relative() {
+            if let Some(parent) = load_context.path().parent() {
+                path = parent.join(path);
+            }
+        }
+        let loaded = load_context.load_direct(path).await?;
+        let resource = loaded.get::<ResourceAsset>().unwrap();
+        if let Err(errors) = bundle.add_resource(resource.0.clone()) {
+            warn_span!("add_resource").in_scope(|| {
+                for error in errors {
+                    warn!(%error);
+                }
+            });
+        }
+    }
+    Ok(BundleAsset(Arc::new(bundle)))
 }

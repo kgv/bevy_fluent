@@ -1,4 +1,4 @@
-name: ci
+name: Rust
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
 
 jobs:
   build:
@@ -18,22 +19,22 @@ jobs:
         exclude:
           - os: macos-latest
             toolchain: nightly
-
     runs-on: ${{ matrix.os }}
-
     steps:
     - uses: actions/checkout@v4
-    - uses: actions-rs/toolchain@v1
+    - uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: ${{ matrix.toolchain }}
         components: rustfmt, clippy
-        override: true
-    - uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
-    - name: Install alsa and udev
-      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        toolchain: ${{ matrix.toolchain }}
+    - name: fmt
+      if: matrix.toolchain == 'nightly'
+      run: cargo fmt --all -- --check
+    - name: check
+      run: cargo check
+    - name: update & install
       if: runner.os == 'linux'
+      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
     - name: build & test
       run: cargo test --verbose
+    - name: clippy
+      run: cargo clippy --all
