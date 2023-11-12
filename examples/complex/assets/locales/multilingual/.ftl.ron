@@ -1,5 +1,5 @@
 {
-    "de-DE": ["de-DE.ftl"],
+    "*de-DE": ["de-DE.ftl"],
     "en-US": ["en-US.ftl"],
     "ru-RU": ["ru-RU.ftl"],
 }

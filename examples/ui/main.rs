@@ -6,6 +6,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_fluent::prelude::*;
+use resources::Locales;
 use unic_langid::langid;
 
 fn main() {
@@ -17,15 +18,12 @@ fn main() {
             }),
             FluentPlugin,
         ))
-        .insert_resource(
-            Locales::new([
-                langid!("de-DE"),
-                langid!("en-US"),
-                langid!("ru-BY"),
-                langid!("ru-RU"),
-            ])
-            .with_default(langid!("und")),
-        )
+        .insert_resource(Locales(vec![
+            langid!("de-DE"),
+            langid!("en-US"),
+            langid!("ru-BY"),
+            langid!("ru-RU"),
+        ]))
         .init_resource::<Font>()
         .add_state::<GameState>()
         .add_systems(OnEnter(GameState::Load), load::setup)

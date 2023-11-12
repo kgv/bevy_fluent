@@ -24,6 +24,11 @@ Request content:
 let hello_world = bundle_asset.content("hello-world")?;
 ```
 
+## File formats
+
+- `ResourceAsset` have to be `FTL`.
+- `BundlesAsset` files may be `YAML` or `RON`
+
 ## Definitions
 [`BundleAsset`][bundle-asset] - is an abstraction for presentation
 [`FluentBundle`][fluent-bundle]. A *bundles* file has the extension `.ftl.ron`

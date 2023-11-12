@@ -3,5 +3,5 @@
     "en-US": ["en-US/menu/ui.ftl"],
     "ru-BY": ["ru/ru-BY/menu/ui.ftl"],
     "ru-RU": ["ru/ru-RU/menu/ui.ftl"],
-    "und": ["und/menu/locales.ftl"],
+    "*und": ["und/menu/locales.ftl"],
 }

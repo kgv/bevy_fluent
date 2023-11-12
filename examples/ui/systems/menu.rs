@@ -1,6 +1,6 @@
 use crate::{
     components::{Menu, NextButton, PreviousButton},
-    resources::Font,
+    resources::{Font, Loaded, Locales},
     to_sentence_case::ToSentenceCase,
     GameState,
 };
@@ -10,11 +10,13 @@ use fluent_content::Content;
 
 pub fn setup(
     mut commands: Commands,
+    assets: Res<Assets<BundlesAsset>>,
     font: Res<Font>,
     locales: Res<Locales>,
-    bundles: Res<Bundles>,
+    handle: Res<Loaded>,
 ) {
-    let request = locales.available[0].to_string().to_lowercase();
+    let bundles = assets.get(&handle.0).unwrap();
+    let request = locales[0].to_string().to_lowercase();
     let locale = bundles.content(&request).unwrap().to_sentence_case();
     let choose_language = bundles
         .content("choose-language")
@@ -207,22 +209,5 @@ pub fn previous(
     if let Ok(Interaction::Pressed) = query.get_single() {
         locales.previous();
         next_state.set(GameState::Load);
-    }
-}
-
-/// Rotate locales
-trait Rotate {
-    fn next(&mut self);
-
-    fn previous(&mut self);
-}
-
-impl Rotate for Locales {
-    fn next(&mut self) {
-        self.available.rotate_right(1);
-    }
-
-    fn previous(&mut self) {
-        self.available.rotate_left(1);
     }
 }

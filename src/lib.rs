@@ -4,15 +4,14 @@
 
 #[doc(inline)]
 pub use self::{
-    assets::{BundleAsset, ResourceAsset},
+    assets::{BundlesAsset, ResourceAsset},
     plugins::FluentPlugin,
-    resources::{Bundles, Locales},
 };
 
 /// `use bevy_fluent::prelude::*;` to import common assets, components and plugins
 pub mod prelude {
     #[doc(inline)]
-    pub use super::{BundleAsset, Bundles, FluentPlugin, Locales};
+    pub use super::{BundlesAsset, FluentPlugin};
 }
 
 pub mod assets;

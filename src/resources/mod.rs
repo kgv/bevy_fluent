@@ -4,7 +4,6 @@
 //! [`Resource`](bevy::ecs::system::Resource).
 
 #[doc(inline)]
-pub use self::{bundles::Bundles, locales::Locales};
+pub use self::fallback_chain::FallbackChain;
 
-mod bundles;
-mod locales;
+mod fallback_chain;
