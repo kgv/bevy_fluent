@@ -1,14 +1,14 @@
-use bevy::{
-    asset::{LoadState, LoadedFolder},
-    prelude::*,
-};
-use bevy_fluent::prelude::*;
+use bevy::{asset::LoadState, prelude::*};
+use bevy_fluent::{prelude::*, resources::Locales};
 use fluent_content::Content;
 use unic_langid::langid;
 
 pub fn main() {
     App::new()
-        .insert_resource(Locale::new(langid!("ru-RU")).with_default(langid!("en-US")))
+        .insert_resource(
+            Locales::new([langid!("en-US"), langid!("ru-RU"), langid!("ru-BY")])
+                .with_default(langid!("en-US")),
+        )
         .add_plugins((
             DefaultPlugins.set(AssetPlugin {
                 file_path: "examples/fallback_chain/assets".to_string(),
@@ -16,26 +16,37 @@ pub fn main() {
             }),
             FluentPlugin,
         ))
-        .add_systems(Update, localized_hello_world)
+        .add_systems(Update, localize)
         .run();
 }
 
-fn localized_hello_world(
-    localization_builder: LocalizationBuilder,
+fn localize(
+    locales: Res<Locales>,
     asset_server: Res<AssetServer>,
-    mut handle: Local<Option<Handle<LoadedFolder>>>,
-    mut localization: Local<Option<Localization>>,
+    assets: Res<Assets<BundleAsset>>,
+    mut handles: Local<Option<Vec<Handle<BundleAsset>>>>,
+    mut bundles: Local<Bundles>,
 ) {
-    let handle = &*handle.get_or_insert_with(|| asset_server.load_folder("locales"));
-    if let Some(LoadState::Loaded) = asset_server.get_load_state(handle) {
-        let localization = localization.get_or_insert_with(|| localization_builder.build(handle));
+    let handles = handles.get_or_insert_with(|| {
+        locales
+            .request(Some(langid!("ru-RU")))
+            .iter()
+            .map(|locale| asset_server.load(format!("locales/.ftl.ron#{locale}")))
+            .collect()
+    });
+    if handles
+        .iter()
+        .all(|handle| asset_server.get_load_state(handle) == Some(LoadState::Loaded))
+    {
+        *bundles = handles
+            .iter()
+            .map(|handle| (handle.clone(), assets.get(handle).unwrap().clone()))
+            .collect();
         // From ru-RU bundle, the first in fallback chain.
-        assert!(matches!(localization.content("hello"), Some(content) if content == "привет"));
+        assert!(matches!(bundles.content("hello"), Some(content) if content == "привет"));
         // From ru-BY bundle, the second in fallback chain.
-        assert!(matches!(localization.content("world"), Some(content) if content == "свету"));
+        assert!(matches!(bundles.content("world"), Some(content) if content == "свету"));
         // From en-US bundle, the last in fallback chain, default locale.
-        assert!(
-            matches!(localization.content("hello-world"), Some(content) if content == "hello world")
-        );
+        assert!(matches!(bundles.content("bevy"), Some(content) if content == "bevy"));
     }
 }

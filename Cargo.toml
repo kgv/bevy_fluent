@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2021"
 description = "Bevy plugin for localization using Fluent"
@@ -18,23 +18,23 @@ categories = [
 exclude = [".github/**/*"]
 
 [dependencies]
-bevy = { version = "0.12", default-features = false, features = ["bevy_asset"] }
+bevy = { version = "0.12.0", default-features = false, features = [
+  "bevy_asset",
+] }
 fluent = "0.16.0"
 fluent_content = "0.0.5"
 fluent-langneg = "0.13.0"
-futures-lite = "2.0.0"
+futures-lite = "2.0.1"
 indexmap = { version = "2.1.0", features = ["serde"] }
 intl-memoizer = "0.5.1"
 ron = "0.8.1"
-serde = { version = "1.0.188", features = ["derive"] }
+serde = { version = "1.0.192", features = ["derive"] }
 serde_yaml = "0.9.27"
 thiserror = "1.0.50"
 tracing = "0.1.40"
 unic-langid = { version = "0.9.1", features = ["serde"] }
 uuid = { version = "1.5.0", features = ["serde", "v4", "v5"] }
-# fluent-syntax = { git = "https://github.com/projectfluent/fluent-rs" }
-# globset = "0.4.13"
 
 [dev-dependencies]
-bevy = "0.12"
+bevy = "0.12.0"
 unic-langid = { version = "0.9.1", features = ["macros"] }

@@ -1,29 +1,37 @@
-use crate::GameState;
-use bevy::{
-    asset::{LoadState, LoadedFolder},
-    prelude::*,
-};
+use crate::{resources::Handles, GameState};
+use bevy::{asset::LoadState, prelude::*};
 use bevy_fluent::prelude::*;
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let handle = asset_server.load_folder("locales");
-    commands.insert_resource(LocaleFolder(handle));
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, locales: Res<Locales>) {
+    let handles = Handles(
+        locales
+            .request(Some(&locales.available[0]))
+            .iter()
+            .map(|locale| asset_server.load(format!("locales/.ftl.ron#{locale}")))
+            .collect(),
+    );
+    commands.insert_resource(handles);
 }
 
 pub fn update(
     mut commands: Commands,
-    localization_builder: LocalizationBuilder,
     asset_server: Res<AssetServer>,
+    assets: Res<Assets<BundleAsset>>,
+    handles: Res<Handles>,
     mut next_state: ResMut<NextState<GameState>>,
-    locale_folder: Res<LocaleFolder>,
 ) {
-    if let Some(LoadState::Loaded) = asset_server.get_load_state(&locale_folder.0) {
-        let localization = localization_builder.build(&locale_folder.0);
-        commands.remove_resource::<LocaleFolder>();
-        commands.insert_resource(localization);
+    if handles
+        .iter()
+        .all(|handle| asset_server.get_load_state(handle) == Some(LoadState::Loaded))
+    {
+        let bundles = Bundles(
+            handles
+                .iter()
+                .map(|handle| (handle.clone(), assets.get(handle).unwrap().clone()))
+                .collect(),
+        );
+        commands.remove_resource::<Handles>();
+        commands.insert_resource(bundles);
         next_state.set(GameState::Menu);
     }
 }
-
-#[derive(Resource)]
-pub struct LocaleFolder(Handle<LoadedFolder>);

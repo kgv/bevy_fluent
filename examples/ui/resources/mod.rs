@@ -1,6 +1,5 @@
 use bevy::prelude::{Font as BevyFont, *};
-use std::ops::Deref;
-use unic_langid::LanguageIdentifier;
+use bevy_fluent::BundleAsset;
 
 /// Font
 #[derive(Resource)]
@@ -14,22 +13,6 @@ impl FromWorld for Font {
     }
 }
 
-/// Locales
-#[derive(Resource)]
-pub struct Locales(pub Vec<LanguageIdentifier>);
-
-impl Locales {
-    pub fn index(&self, locale: &LanguageIdentifier) -> usize {
-        self.iter()
-            .position(|item| item == locale)
-            .expect("index not found")
-    }
-}
-
-impl Deref for Locales {
-    type Target = Vec<LanguageIdentifier>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
+/// Handles
+#[derive(Clone, Default, Deref, Resource)]
+pub struct Handles(pub Vec<Handle<BundleAsset>>);

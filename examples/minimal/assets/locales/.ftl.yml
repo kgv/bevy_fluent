@@ -1,4 +1,2 @@
 # Locale files may be in YAML as in this example, or in RON
-locale: en-US
-resources:
-  - hello_world.ftl
+en-US: [en-US/main.ftl]

@@ -7,15 +7,7 @@
 Load asset using `AssetServer`:
 
 ```rust
-let handle = asset_server.load("locales/en-US/main.ftl.ron");
-```
-
-Load all assets matching the glob using `AssetServerExt`:
-
-```rust
-use bevy_fluent::exts::bevy::AssetServerExt;
-
-let handles = asset_server.load_glob("locales/**/main.ftl.ron")?;
+let handle = asset_server.load("locales/.ftl.ron#en-US");
 ```
 
 Check assets load state:
@@ -26,52 +18,32 @@ if let LoadState::Loaded =  asset_server.get_load_state(handle) {
 }
 ```
 
-Check assets load state:
-
-```rust
-if let LoadState::Loaded = asset_server.get_group_load_state(handles) {
-    ...
-}
-```
-
-Create a bundle fallback chain based on the locale fallback chain using
-`LocalizationBuilder`:
-
-```rust
-let localization = localization_builder.build(handles);
-```
-
 Request content:
 
 ```rust
 let hello_world = bundle_asset.content("hello-world")?;
-let hello_world = localization.content("hello-world")?;
 ```
 
 ## Definitions
+[`BundleAsset`][bundle-asset] - is an abstraction for presentation
+[`FluentBundle`][fluent-bundle]. A *bundles* file has the extension `.ftl.ron`
+or `.ftl.yml` and proper format. It contains information about all
+`FluentBundle`s.
 
-[***Localization***][localization] is a Fluent [***bundle***][fluent-bundle]
-fallback chain.
+[`ResourceAsset`][resource-asset] - is an abstraction for presentation
+[`FluentResource`][fluent-resource]. A *resource* file has the extension `.ftl`.
 
-[***Bundle asset***][bundle-asset] - is an abstraction for presentation Fluent
-*bundles*. Each *bundle asset* file has the extension `.ftl.ron`.
+Each `ResourceAsset` is a set of [`Message`][message]s. `Message` is the basic
+atomic translation unit for Fluent.
 
-[***Resource asset***][resource-asset] - is an abstraction for presentation
-Fluent [***resources***][fluent-resource]. Each *resource asset* file has the
-extension `.ftl`. *Resource asset* is the atomic unit of disk storage for
-Fluent.
+Each `Message` has an [`Identifier`][identifier].
 
-Each *resource asset* is a set of [***messages***][message]. *Message* is the
-basic atomic translation unit for Fluent.
+`Message`s (and [`Term`][Term]s, [`Variant`][variant]s,
+[`Attribute`][attribute]s) store their values as [`Pattern`][pattern]s.
 
-Each *message* has an [***identifier***][identifier].
+Formated `Pattern` are called [`Content`][content].
 
-*Messages* (and [***terms***][term], [***variants***][variant],
-[***attributes***][attribute]) store their values as [***patterns***][pattern].
-
-Formated *pattern* are called [***content***][content].
-
-[***Request***][request] is a request to receive *content* specified by the
+[`Request`][request] is a request to receive `Content` specified by the
 parameters.
 
 [attribute]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Attribute.html
@@ -80,7 +52,6 @@ parameters.
 [fluent-bundle]: https://docs.rs/fluent/*/fluent/bundle/struct.FluentBundle.html
 [fluent-resource]: https://docs.rs/fluent/*/fluent/struct.FluentResource.html
 [identifier]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Identifier.html
-[localization]: https://docs.rs/bevy_fluent/*/bevy_fluent/assets/struct.Localization.html
 [message]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Message.html
 [pattern]: https://docs.rs/fluent-syntax/*/fluent_syntax/ast/struct.Pattern.html
 [request]: https://docs.rs/bevy_fluent/*/bevy_fluent/exts/bundle/struct.Request.html
