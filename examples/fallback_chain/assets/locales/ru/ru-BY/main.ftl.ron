@@ -1,6 +1,0 @@
-(
-    locale: "ru-BY",
-    resources: [
-        "hello_world.ftl",
-    ]
-)

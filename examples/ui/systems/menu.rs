@@ -1,7 +1,6 @@
 use crate::{
     components::{Menu, NextButton, PreviousButton},
-    resources::Font,
-    systems::parameters::Swiper,
+    resources::{Font, Loaded, Locales},
     to_sentence_case::ToSentenceCase,
     GameState,
 };
@@ -11,13 +10,15 @@ use fluent_content::Content;
 
 pub fn setup(
     mut commands: Commands,
+    assets: Res<Assets<BundlesAsset>>,
     font: Res<Font>,
-    locale: Res<Locale>,
-    localization: Res<Localization>,
+    locales: Res<Locales>,
+    handle: Res<Loaded>,
 ) {
-    let request = locale.requested.to_string().to_lowercase();
-    let locale = localization.content(&request).unwrap().to_sentence_case();
-    let choose_language = localization
+    let bundles = assets.get(&handle.0).unwrap();
+    let request = locales[0].to_string().to_lowercase();
+    let locale = bundles.content(&request).unwrap().to_sentence_case();
+    let choose_language = bundles
         .content("choose-language")
         .unwrap()
         .to_sentence_case();
@@ -190,49 +191,23 @@ pub fn interaction(
 }
 
 pub fn next(
-    mut swiper: Swiper,
+    mut locales: ResMut<Locales>,
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
 ) {
     if let Ok(Interaction::Pressed) = query.get_single() {
-        swiper.next();
+        locales.next();
         next_state.set(GameState::Load);
     }
 }
 
 pub fn previous(
-    mut swiper: Swiper,
+    mut locales: ResMut<Locales>,
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
 ) {
     if let Ok(Interaction::Pressed) = query.get_single() {
-        swiper.previous();
+        locales.previous();
         next_state.set(GameState::Load);
     }
 }
-
-// const LOCALES: &[LanguageIdentifier] = &[de::DE, en::US, ru::BY, ru::RU];
-
-// /// Shift to one of the next or previous locale
-// trait Shift {
-//     fn shift(&mut self, count: isize);
-// }
-
-// impl Shift for Locale {
-//     fn shift(&mut self, count: isize) {
-//         error!(%count);
-//         if let Some(mut position) = LOCALES.iter().position(|locale| locale == self.requested()) {
-//             error!(%position);
-//             if count.is_positive() {
-//                 let count = count as _;
-//                 position = position.saturating_add(count).min(LOCALES.len() - 1);
-//             } else if count.is_negative() {
-//                 let count = count.abs() as _;
-//                 position = position.saturating_sub(count);
-//             }
-//             error!(%position);
-//             *self =
-//                 Self::new(LOCALES[position].clone()).with_default(self.default().unwrap().clone());
-//         }
-//     }
-// }

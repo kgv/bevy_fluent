@@ -1,6 +1,0 @@
-(
-    locale: "en-US",
-    resources: [
-        "menu/ui.ftl",
-    ]
-)

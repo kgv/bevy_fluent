@@ -1,10 +1,10 @@
 use bevy::prelude::{Font as BevyFont, *};
-use std::ops::Deref;
+use bevy_fluent::BundlesAsset;
 use unic_langid::LanguageIdentifier;
 
 /// Font
 #[derive(Resource)]
-pub struct Font(pub Handle<BevyFont>);
+pub struct Font(pub(crate) Handle<BevyFont>);
 
 impl FromWorld for Font {
     fn from_world(world: &mut World) -> Self {
@@ -14,22 +14,30 @@ impl FromWorld for Font {
     }
 }
 
-/// Locales
+/// Loading
 #[derive(Resource)]
-pub struct Locales(pub Vec<LanguageIdentifier>);
+pub struct Loading(pub(crate) Handle<BundlesAsset>);
 
-impl Locales {
-    pub fn index(&self, locale: &LanguageIdentifier) -> usize {
-        self.iter()
-            .position(|item| item == locale)
-            .expect("index not found")
+impl From<Loading> for AssetId<BundlesAsset> {
+    fn from(value: Loading) -> Self {
+        value.into()
     }
 }
 
-impl Deref for Locales {
-    type Target = Vec<LanguageIdentifier>;
+/// Loaded
+#[derive(Resource)]
+pub struct Loaded(pub(crate) Handle<BundlesAsset>);
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
+/// Locales
+#[derive(Deref, Resource)]
+pub struct Locales(pub(crate) Vec<LanguageIdentifier>);
+
+impl Locales {
+    pub(crate) fn next(&mut self) {
+        self.0.rotate_right(1);
+    }
+
+    pub(crate) fn previous(&mut self) {
+        self.0.rotate_left(1);
     }
 }
