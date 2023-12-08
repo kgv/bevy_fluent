@@ -9,6 +9,8 @@ use bevy::prelude::*;
 use bevy_fluent::prelude::*;
 use fluent_content::Content;
 
+const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub fn setup(
     mut commands: Commands,
     font: Res<Font>,
@@ -21,6 +23,9 @@ pub fn setup(
         .content("choose-language")
         .unwrap()
         .to_sentence_case();
+    
+    let version =  localization.content(&format!("version.?version={}", CARGO_VERSION)).unwrap();
+
     // camera
     commands.spawn(Camera2dBundle::default()).insert(Menu);
     // ui
@@ -60,6 +65,17 @@ pub fn setup(
                             TextStyle {
                                 font: font.0.clone(),
                                 font_size: 64.0,
+                                color: Color::WHITE,
+                            },
+                        ),
+                        ..default()
+                    });
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            &version,
+                            TextStyle {
+                                font: font.0.clone(),
+                                font_size: 24.0,
                                 color: Color::WHITE,
                             },
                         ),
