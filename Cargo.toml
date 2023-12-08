@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2021"
 description = "Bevy plugin for localization using Fluent"
