@@ -21,7 +21,7 @@ exclude = [".github/**/*"]
 bevy = { version = "0.12", default-features = false, features = ["bevy_asset"] }
 fluent = "0.16.0"
 fluent_content = "0.0.5"
-fluent-langneg = "0.13.0"
+fluent-langneg = "0.14.0"
 futures-lite = "2.0.0"
 indexmap = { version = "2.1.0", features = ["serde"] }
 intl-memoizer = "0.5.1"
