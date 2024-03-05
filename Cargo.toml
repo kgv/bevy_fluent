@@ -18,7 +18,7 @@ categories = [
 exclude = [".github/**/*"]
 
 [dependencies]
-bevy = { version = "0.12", default-features = false, features = ["bevy_asset"] }
+bevy = { version = "0.13", default-features = false, features = ["bevy_asset"] }
 fluent = "0.16.0"
 fluent_content = "0.0.5"
 fluent-langneg = "0.13.0"
