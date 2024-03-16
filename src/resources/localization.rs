@@ -1,10 +1,7 @@
 //! Localization asset
 
 use crate::{exts::fluent::BundleExt, BundleAsset};
-use bevy::{
-    prelude::*,
-    utils::tracing::{self, instrument},
-};
+use bevy::{prelude::*, utils::tracing::instrument};
 use fluent::FluentArgs;
 use fluent_content::{Content, Request};
 use indexmap::IndexMap;

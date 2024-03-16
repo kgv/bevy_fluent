@@ -6,10 +6,7 @@ use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
     reflect::TypePath,
-    utils::{
-        tracing::{self, instrument},
-        BoxedFuture,
-    },
+    utils::{tracing::instrument, BoxedFuture},
 };
 use fluent::{bundle::FluentBundle, FluentResource};
 use intl_memoizer::concurrent::IntlLangMemoizer;

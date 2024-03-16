@@ -5,10 +5,7 @@ use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
     reflect::TypePath,
-    utils::{
-        tracing::{self, instrument},
-        BoxedFuture,
-    },
+    utils::{tracing::instrument, BoxedFuture},
 };
 use fluent::FluentResource;
 use std::{ops::Deref, str, sync::Arc};
