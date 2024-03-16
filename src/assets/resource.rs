@@ -4,25 +4,19 @@ use super::{Error, Result};
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
-    reflect::{TypePath, TypeUuid},
-    utils::{
-        tracing::{self, instrument},
-        BoxedFuture,
-    },
+    reflect::TypePath,
+    utils::{tracing::instrument, BoxedFuture},
 };
 use fluent::FluentResource;
-use std::{ops::Deref, str, sync::Arc};
+use std::sync::Arc;
 
 /// [`FluentResource`](fluent::FluentResource) wrapper
-#[derive(Asset, Clone, Debug, TypePath, TypeUuid)]
-#[uuid = "0b2367cb-fb4a-4746-a305-df98b26dddf6"]
+#[derive(Asset, Clone, Debug, Deref, TypePath)]
 pub struct ResourceAsset(pub(crate) Arc<FluentResource>);
 
-impl Deref for ResourceAsset {
-    type Target = FluentResource;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl ResourceAsset {
+    pub fn new(resource: Arc<FluentResource>) -> Self {
+        Self(resource)
     }
 }
 
@@ -45,7 +39,7 @@ impl AssetLoader for ResourceAssetLoader {
         Box::pin(async move {
             let mut content = String::new();
             reader.read_to_string(&mut content).await?;
-            Ok(ResourceAsset(deserialize(content)))
+            Ok(ResourceAsset(Arc::new(deserialize(content))))
         })
     }
 
@@ -55,8 +49,8 @@ impl AssetLoader for ResourceAssetLoader {
 }
 
 #[instrument(skip_all)]
-fn deserialize(content: String) -> Arc<FluentResource> {
-    let fluent_resource = match FluentResource::try_new(content) {
+fn deserialize(content: String) -> FluentResource {
+    match FluentResource::try_new(content) {
         Ok(fluent_resource) => fluent_resource,
         Err((fluent_resource, errors)) => {
             error_span!("try_new").in_scope(|| {
@@ -66,6 +60,5 @@ fn deserialize(content: String) -> Arc<FluentResource> {
             });
             fluent_resource
         }
-    };
-    Arc::new(fluent_resource)
+    }
 }

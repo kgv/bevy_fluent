@@ -16,7 +16,7 @@
 
 | bevy | bevy_fluent |
 |------|-------------|
-| 0.12 | 0.8         |
+| 0.12 | 0.8, 0.9    |
 | 0.11 | 0.7         |
 | 0.10 | 0.6         |
 | 0.9  | 0.5         |
@@ -25,21 +25,23 @@
 ## See Also
 
 - [Bevy][bevy] ❤️
-- [Bevy localisation plugin issue][bevy-localisation-plugin-issue]
+- [Bevy localisation plugin issue](https://github.com/bevyengine/bevy/issues/461)
 
 ***
 
 - [Fluent][fluent]
-- [Fluent fallback][fluent-fallback]
-- [Fluent language negotiation][fluent-langneg]
-- [Fluent message format 2.0][fluent-message-format-2.0]
-- [Fluent resource manager][fluent-resmgr]
-- [L10nRegistry][l10nregistry]
+- [Fluent fallback](https://github.com/projectfluent/fluent-rs/tree/master/fluent-fallback)
+- [Fluent language negotiation](https://github.com/projectfluent/fluent-langneg-rs)
+- [Fluent message format 2.0](https://github.com/zbraniecki/message-format-2.0-rs)
+- [Fluent resource manager](https://github.com/projectfluent/fluent-rs/tree/master/fluent-resmgr)
+- [L10nRegistry](https://github.com/zbraniecki/l10nregistry-rs)
 
 ***
 
 - [Locales](https://github.com/unicode-org/cldr-json/blob/master/cldr-json/cldr-core/availableLocales.json)
-- [Unicode Language Identifier][unicode-language-identifier]
+- [Message format working group](https://github.com/unicode-org/message-format-wg)
+- [Unicode Language Identifier](http://unicode.org/reports/tr35/#Unicode_language_identifier)
+= [ICU4X](https://github.com/unicode-org/icu4x)
 
 ## Dedication
 
@@ -47,16 +49,10 @@ Thanks to my little sister Anny ❤️ the world's best linguist and the most
 wonderful sister.
 
 [bevy]: https://github.com/bevyengine/bevy
-[bevy-localisation-plugin-issue]: https://github.com/bevyengine/bevy/issues/461
 [fluent]: https://github.com/projectfluent/fluent-rs
-[fluent-fallback]: https://github.com/projectfluent/fluent-rs/tree/master/fluent-fallback
-[fluent-langneg]: https://github.com/projectfluent/fluent-langneg-rs
-[fluent-message-format-2.0]: https://github.com/zbraniecki/message-format-2.0-rs
-[fluent-resmgr]: https://github.com/projectfluent/fluent-rs/tree/master/fluent-resmgr
-[l10nregistry]: https://github.com/zbraniecki/l10nregistry-rs
-[unicode-language-identifier]: http://unicode.org/reports/tr35/#Unicode_language_identifier
 
-[unic-locale]: https://docs.rs/unic-locale/0.9.0/unic_locale/index.html
-[language-tags]: https://www.w3.org/International/questions/qa-choosing-language-tags.ru
-[language-subtag-lookup]: https://r12a.github.io/app-subtags
 [iana-language-subtag-registry]: http://www.iana.org/assignments/language-subtag-registry
+[icu4x message-format 2]: https://github.com/unicode-org/icu4x/pull/2272
+[language-subtag-lookup]: https://r12a.github.io/app-subtags
+[language-tags]: https://www.w3.org/International/questions/qa-choosing-language-tags.ru
+[unic-locale]: https://docs.rs/unic-locale/0.9.0/unic_locale/index.html

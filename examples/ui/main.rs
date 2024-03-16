@@ -1,12 +1,13 @@
 #![allow(clippy::type_complexity)]
 
 use crate::{
-    locales::{de, en, ru},
-    resources::{Font, Locales},
+    resources::Font,
     systems::{load, menu},
 };
 use bevy::prelude::*;
 use bevy_fluent::prelude::*;
+use resources::Locales;
+use unic_langid::langid;
 
 fn main() {
     App::new()
@@ -17,18 +18,22 @@ fn main() {
             }),
             FluentPlugin,
         ))
-        .insert_resource(Locale::new(ru::RU).with_default(en::US))
-        .insert_resource(Locales(vec![de::DE, en::US, ru::BY, ru::RU]))
+        .insert_resource(Locales(vec![
+            langid!("de-DE"),
+            langid!("en-US"),
+            langid!("ru-BY"),
+            langid!("ru-RU"),
+        ]))
         .init_resource::<Font>()
-        .add_state::<GameState>()
+        .init_state::<GameState>()
         .add_systems(OnEnter(GameState::Load), load::setup)
         .add_systems(Update, load::update.run_if(in_state(GameState::Load)))
         .add_systems(OnEnter(GameState::Menu), menu::setup)
-        .add_systems(OnExit(GameState::Menu), menu::cleanup)
         .add_systems(
             Update,
             (menu::interaction, menu::next, menu::previous).run_if(in_state(GameState::Menu)),
         )
+        .add_systems(OnExit(GameState::Menu), menu::cleanup)
         .run();
 }
 
@@ -40,7 +45,6 @@ pub enum GameState {
 }
 
 mod components;
-mod locales;
 mod resources;
 mod systems;
 mod to_sentence_case;

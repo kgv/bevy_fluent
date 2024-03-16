@@ -4,8 +4,8 @@
 
 pub use self::error::{Error, Result};
 #[doc(inline)]
-pub use self::{bundle::BundleAsset, resource::ResourceAsset};
+pub use self::{bundles::BundlesAsset, resource::ResourceAsset};
 
-pub mod bundle;
+pub mod bundles;
 pub mod error;
 pub mod resource;

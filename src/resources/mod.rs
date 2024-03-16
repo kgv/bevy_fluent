@@ -4,7 +4,6 @@
 //! [`Resource`](bevy::ecs::system::Resource).
 
 #[doc(inline)]
-pub use self::{locale::Locale, localization::Localization};
+pub use self::fallback_chain::FallbackChain;
 
-mod locale;
-mod localization;
+mod fallback_chain;
