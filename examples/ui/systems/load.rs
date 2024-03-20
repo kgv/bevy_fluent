@@ -26,10 +26,10 @@ pub fn setup(
                 ..default()
             });
         });
-    // if loaded.is_some() {
-    //     asset_server.asset_server.reload("locales/.ftl.ron")
-    // }
-    error!(new = ?handle.path());
+    // [AssetServer:: load_with_settings ignores the settings if file was already loaded with default settings](https://github.com/bevyengine/bevy/issues/11111)
+    // [Add a repeating texture example](https://github.com/bevyengine/bevy/pull/11161)
+    // [Add support for using name-based labels](https://github.com/bevyengine/bevy/pull/11279)
+    error!(?handle);
     commands.insert_resource(Loading(handle));
 }
 

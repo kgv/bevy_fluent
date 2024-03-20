@@ -12,9 +12,10 @@ use fluent::{bundle::FluentBundle, FluentArgs, FluentResource};
 use fluent_content::{Content, Request};
 use indexmap::{indexmap, IndexMap};
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::{
     borrow::Borrow,
+    collections::HashMap,
     ffi::OsStr,
     fmt::{self, Debug, Display, Formatter},
     path::PathBuf,
@@ -68,9 +69,9 @@ impl AssetLoader for BundlesAssetLoader {
                     _ => unreachable!("We already check all the supported extensions."),
                 };
             debug!(?deserialized);
-            debug!(default = ?deserialized.first().map(ToString::to_string));
+            debug!(default = ?deserialized.default.as_ref().map(ToString::to_string));
             // Labels
-            for (locale, paths) in &deserialized.0 {
+            for (locale, paths) in &deserialized.bundles {
                 load_context.add_loaded_labeled_asset(locale.to_string(), {
                     let mut load_context = load_context.begin_labeled_asset();
                     let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
@@ -82,42 +83,38 @@ impl AssetLoader for BundlesAssetLoader {
             debug!(?settings);
             let mut bundles = IndexMap::new();
             for (index, locales) in settings.locales.iter().enumerate() {
+                if let Some(locale) = &locales.default {
+                    if !deserialized.bundles.contains_key(locale) {
+                        return Err(Error::LocaleNotFound {
+                            locale: locale.clone(),
+                            path: load_context.path().to_path_buf(),
+                        });
+                    }
+                }
                 let key = locales
                     .name
                     .clone()
                     .or(locales.requested.first().map(ToString::to_string))
                     .unwrap_or(index.to_string());
-                let mut fallback_chain = FallbackChain::new(deserialized.0.keys());
-                fallback_chain.default = match &locales.default {
-                    Default::Explicit(Some(locale)) => {
-                        if !deserialized.0.contains_key(locale) {
-                            return Err(Error::LocaleNotFound {
-                                locale: locale.clone(),
-                                path: load_context.path().to_path_buf(),
-                            });
-                        }
-                        Some(locale)
-                    }
-                    Default::Explicit(None) => None,
-                    Default::Implicit => deserialized.first(),
-                };
+                let mut fallback_chain = FallbackChain::new(deserialized.bundles.keys());
+                fallback_chain.default = locales.default.as_ref().or(deserialized.default.as_ref());
                 let locales = fallback_chain.request(&locales.requested);
                 info!(locales = ?locales.iter().map(ToString::to_string).collect::<Vec<_>>());
                 let mut bundle = FluentBundle::new_concurrent(
                     locales.iter().copied().copied().cloned().collect(),
                 );
                 for &&locale in &locales {
-                    let paths = &deserialized.0[locale];
+                    let paths = &deserialized.bundles[locale];
                     bundle.load(locale, paths, load_context).await?;
                 }
                 bundles.insert(key, bundle);
             }
             // Default
             if bundles.is_empty() {
-                if let Some(locale) = deserialized.first() {
+                if let Some(locale) = &deserialized.default {
                     info!(%locale);
                     let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
-                    let paths = &deserialized.0[locale];
+                    let paths = &deserialized.bundles[locale];
                     bundle.load(locale, paths, load_context).await?;
                     bundles.insert(locale.to_string(), bundle);
                 }
@@ -187,11 +184,11 @@ pub struct Settings {
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Locale {
     /// Locale name
-    pub name: Option<String>,
+    // pub name: Option<String>,
     /// Requested locales
     pub requested: Vec<LanguageIdentifier>,
     /// Default locale
-    pub default: Default,
+    pub default: Option<LanguageIdentifier>,
 }
 
 impl Display for Locale {
@@ -199,32 +196,75 @@ impl Display for Locale {
         let mut requested = self.requested.iter().peekable();
         while let Some(locale) = requested.next() {
             write!(f, "{locale}")?;
-            // if self.default.is_some() || requested.peek().is_some() {
-            //     f.write_str("|")?;
-            // }
+            if self.default.is_some() || requested.peek().is_some() {
+                f.write_str("|")?;
+            }
         }
-        // if let Some(locale) = &self.default {
-        //     write!(f, "*{locale}")?;
-        // }
+        if let Some(locale) = &self.default {
+            write!(f, "*{locale}")?;
+        }
         Ok(())
     }
 }
 
-/// Default language identifier
-#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
-pub enum Default {
-    Explicit(Option<LanguageIdentifier>),
-    #[default]
-    Implicit,
+/// Deserialized
+#[derive(Clone, Debug, Default, Serialize)]
+struct Deserialized {
+    bundles: HashMap<LanguageIdentifier, Vec<PathBuf>>,
+    default: Option<LanguageIdentifier>,
 }
 
-/// Deserialized
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(transparent)]
-struct Deserialized(IndexMap<LanguageIdentifier, Vec<PathBuf>>);
-
-impl Deserialized {
-    fn first(&self) -> Option<&LanguageIdentifier> {
-        self.0.keys().next()
+impl<'de> Deserialize<'de> for Deserialized {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let deserialized: HashMap<Key, _> = HashMap::deserialize(deserializer)?;
+        let mut default = None;
+        let bundles = deserialized
+            .into_iter()
+            .map(|(key, value)| match key {
+                Key::Default(key) => {
+                    default = Some(key.clone());
+                    (key, value)
+                }
+                Key::NonDefault(key) => (key, value),
+            })
+            .collect();
+        Ok(Self { bundles, default })
     }
 }
+
+/// Key
+#[derive(Eq, Hash, PartialEq)]
+enum Key {
+    Default(LanguageIdentifier),
+    NonDefault(LanguageIdentifier),
+}
+
+impl<'de> Deserialize<'de> for Key {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let deserialized = String::deserialize(deserializer)?;
+        Ok(if let Some(stripped) = deserialized.strip_prefix('*') {
+            Self::Default(stripped.parse().map_err(serde::de::Error::custom)?)
+        } else {
+            Self::NonDefault(deserialized.parse().map_err(serde::de::Error::custom)?)
+        })
+    }
+}
+
+// #[cfg(test)]
+// mod test {
+//     use unic_langid::langid;
+
+//     #[test]
+//     fn test() {
+//         let label = super::Locale {
+//             default: None,
+//             requested: vec![langid!("en-US"), langid!("ru-RU")],
+//         };
+//         assert_eq!(label.to_string(), "/en-US/ru-RU");
+//         let label = super::Locale {
+//             default: Some(langid!("de-DE")),
+//             requested: vec![langid!("en-US"), langid!("ru-RU")],
+//         };
+//         assert_eq!(label.to_string(), "de-DE/en-US/ru-RU");
+//     }
+// }
