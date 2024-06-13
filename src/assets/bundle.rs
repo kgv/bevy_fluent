@@ -67,12 +67,16 @@ impl AssetLoader for BundleAssetLoader {
 #[serde(deny_unknown_fields)]
 struct Data {
     locale: LanguageIdentifier,
+    isolation: Option<bool>,
     resources: Vec<PathBuf>,
 }
 
 #[instrument(fields(path = %load_context.path().display()), skip_all)]
 async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAsset> {
     let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
+    if let Some(isolation) = data.isolation {
+        bundle.set_use_isolating(isolation);
+    }
     for mut path in data.resources {
         if path.is_relative() {
             if let Some(parent) = load_context.path().parent() {
