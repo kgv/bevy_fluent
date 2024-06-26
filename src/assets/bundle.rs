@@ -18,7 +18,7 @@ use unic_langid::LanguageIdentifier;
 ///
 /// Collection of [`FluentResource`]s for a single locale
 #[derive(Asset, Clone, TypePath)]
-pub struct BundleAsset(pub(crate) Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>);
+pub struct BundleAsset(pub Arc<FluentBundle<Arc<FluentResource>, IntlLangMemoizer>>);
 
 impl Deref for BundleAsset {
     type Target = FluentBundle<Arc<FluentResource>, IntlLangMemoizer>;
