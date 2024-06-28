@@ -1,14 +1,14 @@
 //! Resource asset
 
-use super::{Error, Result};
+use super::{ Error, Result };
 use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
+    asset::{ io::Reader, AssetLoader, AsyncReadExt, LoadContext },
     prelude::*,
     reflect::TypePath,
-    utils::{tracing::instrument, BoxedFuture},
+    utils::{ tracing::instrument, ConditionalSendFuture },
 };
 use fluent::FluentResource;
-use std::{ops::Deref, str, sync::Arc};
+use std::{ ops::Deref, str, sync::Arc };
 
 /// [`FluentResource`](fluent::FluentResource) wrapper
 #[derive(Asset, Clone, Debug, TypePath)]
@@ -33,11 +33,11 @@ impl AssetLoader for ResourceAssetLoader {
     type Error = Error;
 
     fn load<'a>(
-        &self,
+        &'a self,
         reader: &'a mut Reader,
         _: &'a Self::Settings,
-        _: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset>> {
+        _: &'a mut LoadContext
+    ) -> impl ConditionalSendFuture<Output = Result<Self::Asset, Self::Error>> {
         Box::pin(async move {
             let mut content = String::new();
             reader.read_to_string(&mut content).await?;

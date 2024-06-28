@@ -1,11 +1,11 @@
 use crate::{
-    components::{Menu, NextButton, PreviousButton},
+    components::{ Menu, NextButton, PreviousButton },
     resources::Font,
     systems::parameters::Swiper,
     to_sentence_case::ToSentenceCase,
     GameState,
 };
-use bevy::prelude::*;
+use bevy::{ color::palettes::css, prelude::* };
 use bevy_fluent::prelude::*;
 use fluent_content::Content;
 
@@ -13,14 +13,11 @@ pub fn setup(
     mut commands: Commands,
     font: Res<Font>,
     locale: Res<Locale>,
-    localization: Res<Localization>,
+    localization: Res<Localization>
 ) {
     let request = locale.requested.to_string().to_lowercase();
     let locale = localization.content(&request).unwrap().to_sentence_case();
-    let choose_language = localization
-        .content("choose-language")
-        .unwrap()
-        .to_sentence_case();
+    let choose_language = localization.content("choose-language").unwrap().to_sentence_case();
     // camera
     commands.spawn(Camera2dBundle::default()).insert(Menu);
     // ui
@@ -50,19 +47,16 @@ pub fn setup(
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::DARK_GRAY.into(),
+                    background_color: css::DARK_GRAY.into(),
                     ..default()
                 })
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            &choose_language,
-                            TextStyle {
-                                font: font.0.clone(),
-                                font_size: 64.0,
-                                color: Color::WHITE,
-                            },
-                        ),
+                        text: Text::from_section(&choose_language, TextStyle {
+                            font: font.0.clone(),
+                            font_size: 64.0,
+                            color: Color::WHITE,
+                        }),
                         ..default()
                     });
                 });
@@ -93,20 +87,17 @@ pub fn setup(
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::GRAY.into(),
+                                background_color: css::GRAY.into(),
                                 ..default()
                             },
                         ))
                         .with_children(|parent| {
                             parent.spawn(TextBundle {
-                                text: Text::from_section(
-                                    "<",
-                                    TextStyle {
-                                        font: font.0.clone(),
-                                        font_size: 64.0,
-                                        color: Color::WHITE,
-                                    },
-                                ),
+                                text: Text::from_section("<", TextStyle {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    color: Color::WHITE,
+                                }),
                                 ..default()
                             });
                         });
@@ -121,19 +112,16 @@ pub fn setup(
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            background_color: Color::GRAY.into(),
+                            background_color: css::GRAY.into(),
                             ..default()
                         })
                         .with_children(|parent| {
                             parent.spawn(TextBundle {
-                                text: Text::from_section(
-                                    &locale,
-                                    TextStyle {
-                                        font: font.0.clone(),
-                                        font_size: 64.0,
-                                        color: Color::WHITE,
-                                    },
-                                ),
+                                text: Text::from_section(&locale, TextStyle {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    color: Color::WHITE,
+                                }),
                                 ..default()
                             });
                         });
@@ -150,20 +138,17 @@ pub fn setup(
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::GRAY.into(),
+                                background_color: css::GRAY.into(),
                                 ..default()
                             },
                         ))
                         .with_children(|parent| {
                             parent.spawn(TextBundle {
-                                text: Text::from_section(
-                                    ">",
-                                    TextStyle {
-                                        font: font.0.clone(),
-                                        font_size: 64.0,
-                                        color: Color::WHITE,
-                                    },
-                                ),
+                                text: Text::from_section(">", TextStyle {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    color: Color::WHITE,
+                                }),
                                 ..default()
                             });
                         });
@@ -178,21 +163,21 @@ pub fn cleanup(mut commands: Commands, query: Query<Entity, With<Menu>>) {
 }
 
 pub fn interaction(
-    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<Button>)>,
+    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<Button>)>
 ) {
     for (interaction, mut color) in query.iter_mut() {
         *color = match interaction {
-            Interaction::Pressed => Color::DARK_GRAY.into(),
-            Interaction::Hovered => Color::SILVER.into(),
-            Interaction::None => Color::GRAY.into(),
-        }
+            Interaction::Pressed => css::DARK_GRAY.into(),
+            Interaction::Hovered => css::SILVER.into(),
+            Interaction::None => css::GRAY.into(),
+        };
     }
 }
 
 pub fn next(
     mut swiper: Swiper,
     mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
+    query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>
 ) {
     if let Ok(Interaction::Pressed) = query.get_single() {
         swiper.next();
@@ -203,7 +188,7 @@ pub fn next(
 pub fn previous(
     mut swiper: Swiper,
     mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
+    query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>
 ) {
     if let Ok(Interaction::Pressed) = query.get_single() {
         swiper.previous();

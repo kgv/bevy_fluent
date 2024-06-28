@@ -1,17 +1,17 @@
 //! Bundle asset
 
-use super::{Error, Result};
+use super::{ Error, Result };
 use crate::ResourceAsset;
 use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
+    asset::{ io::Reader, AssetLoader, AsyncReadExt, LoadContext },
     prelude::*,
     reflect::TypePath,
-    utils::{tracing::instrument, BoxedFuture},
+    utils::{ tracing::instrument, ConditionalSendFuture },
 };
-use fluent::{bundle::FluentBundle, FluentResource};
+use fluent::{ bundle::FluentBundle, FluentResource };
 use intl_memoizer::concurrent::IntlLangMemoizer;
-use serde::{Deserialize, Serialize};
-use std::{ops::Deref, path::PathBuf, str, sync::Arc};
+use serde::{ Deserialize, Serialize };
+use std::{ ops::Deref, path::PathBuf, str, sync::Arc };
 use unic_langid::LanguageIdentifier;
 
 /// [`FluentBundle`](fluent::bundle::FluentBundle) wrapper
@@ -38,11 +38,11 @@ impl AssetLoader for BundleAssetLoader {
     type Error = Error;
 
     fn load<'a>(
-        &self,
+        &'a self,
         reader: &'a mut Reader,
         _: &'a Self::Settings,
-        load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset>> {
+        load_context: &'a mut LoadContext
+    ) -> impl ConditionalSendFuture<Output = Result<Self::Asset, Self::Error>> {
         Box::pin(async move {
             let path = load_context.path();
             let mut content = String::new();
@@ -81,7 +81,7 @@ async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAs
                 path = parent.join(path);
             }
         }
-        let loaded = load_context.load_direct(path).await?;
+        let loaded = load_context.loader().direct().untyped().load(path).await?;
         let resource = loaded.get::<ResourceAsset>().unwrap();
         if let Err(errors) = bundle.add_resource(resource.0.clone()) {
             warn_span!("add_resource").in_scope(|| {
