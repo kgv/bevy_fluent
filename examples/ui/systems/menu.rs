@@ -5,7 +5,7 @@ use crate::{
     to_sentence_case::ToSentenceCase,
     GameState,
 };
-use bevy::prelude::*;
+use bevy::{color::palettes::css, prelude::*};
 use bevy_fluent::prelude::*;
 use fluent_content::Content;
 
@@ -50,7 +50,7 @@ pub fn setup(
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: Color::DARK_GRAY.into(),
+                    background_color: css::DARK_GRAY.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -93,7 +93,7 @@ pub fn setup(
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::GRAY.into(),
+                                background_color: css::GRAY.into(),
                                 ..default()
                             },
                         ))
@@ -121,7 +121,7 @@ pub fn setup(
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            background_color: Color::GRAY.into(),
+                            background_color: css::GRAY.into(),
                             ..default()
                         })
                         .with_children(|parent| {
@@ -150,7 +150,7 @@ pub fn setup(
                                     align_items: AlignItems::Center,
                                     ..default()
                                 },
-                                background_color: Color::GRAY.into(),
+                                background_color: css::GRAY.into(),
                                 ..default()
                             },
                         ))
@@ -182,9 +182,9 @@ pub fn interaction(
 ) {
     for (interaction, mut color) in query.iter_mut() {
         *color = match interaction {
-            Interaction::Pressed => Color::DARK_GRAY.into(),
-            Interaction::Hovered => Color::SILVER.into(),
-            Interaction::None => Color::GRAY.into(),
+            Interaction::Pressed => css::DARK_GRAY.into(),
+            Interaction::Hovered => css::SILVER.into(),
+            Interaction::None => css::GRAY.into(),
         }
     }
 }
