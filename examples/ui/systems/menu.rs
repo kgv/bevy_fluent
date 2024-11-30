@@ -25,21 +25,24 @@ pub fn setup(
     commands.spawn(Camera2d).insert(Menu);
     // ui
     commands
-        .spawn((Node {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            position_type: PositionType::Absolute,
-            flex_direction: FlexDirection::ColumnReverse,
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::FlexStart,
-            ..default()
-        },
-        BackgroundColor(Color::NONE)))
+        .spawn((
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+                flex_direction: FlexDirection::ColumnReverse,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::FlexStart,
+                ..default()
+            },
+            BackgroundColor(Color::NONE),
+        ))
         .insert(Menu)
         .with_children(|parent| {
             // Header
             parent
-                .spawn((Node {
+                .spawn((
+                    Node {
                         width: Val::Percent(100.0),
                         height: Val::Percent(25.0),
                         justify_content: JustifyContent::Center,
@@ -49,52 +52,56 @@ pub fn setup(
                     BackgroundColor(css::DARK_GRAY.into()),
                 ))
                 .with_children(|parent| {
-                    parent.spawn((Text(choose_language),
-                    TextFont{
-                        font: font.0.clone(),
-                        font_size: 64.0,
-                        ..default()
-                    },
-                    TextColor(Color::WHITE),
-                    ));});
+                    parent.spawn((
+                        Text(choose_language),
+                        TextFont {
+                            font: font.0.clone(),
+                            font_size: 64.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ));
+                });
             // Content
             parent
                 .spawn(Node {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(75.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        margin: UiRect::all(Val::Auto),
-                        ..default()
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(75.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    margin: UiRect::all(Val::Auto),
+                    ..default()
                 })
                 .with_children(|parent| {
                     parent
                         .spawn((
                             PreviousButton,
                             Node {
-                                    width: Val::Percent(10.0),
-                                    height: Val::Percent(20.0),
-                                    min_width: Val::Px(64.0),
-                                    min_height: Val::Px(64.0),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                            Button
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((Text("<".to_string()),
-                            TextFont{
-                                font: font.0.clone(),
-                                font_size: 64.0,
+                                width: Val::Percent(10.0),
+                                height: Val::Percent(20.0),
+                                min_width: Val::Px(64.0),
+                                min_height: Val::Px(64.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
-                            TextColor(Color::WHITE),
+                            BackgroundColor(css::GRAY.into()),
+                            Button,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text("<".to_string()),
+                                TextFont {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    ..default()
+                                },
+                                TextColor(Color::WHITE),
                             ));
                         });
                     parent
-                        .spawn((Node{
+                        .spawn((
+                            Node {
                                 width: Val::Percent(80.0),
                                 height: Val::Percent(20.0),
                                 min_width: Val::Px(256.0),
@@ -106,39 +113,40 @@ pub fn setup(
                             BackgroundColor(css::GRAY.into()),
                         ))
                         .with_children(|parent| {
-                            parent.spawn((Text(locale),
-                            TextFont{
-                                font: font.0.clone(),
-                                font_size: 64.0,
-                                ..default()
-                            },
-                            TextColor(Color::WHITE),
+                            parent.spawn((
+                                Text(locale),
+                                TextFont {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    ..default()
+                                },
+                                TextColor(Color::WHITE),
                             ));
                         });
                     parent
                         .spawn((
                             NextButton,
                             Node {
-                                    width: Val::Percent(10.0),
-                                    height: Val::Percent(20.0),
-                                    min_width: Val::Px(64.0),
-                                    min_height: Val::Px(64.0),
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    ..default()
-                                },
-                                BackgroundColor(css::GRAY.into()),
-                                Button
-                            ,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((Text(">".to_string()),
-                            TextFont{
-                                font: font.0.clone(),
-                                font_size: 64.0,
+                                width: Val::Percent(10.0),
+                                height: Val::Percent(20.0),
+                                min_width: Val::Px(64.0),
+                                min_height: Val::Px(64.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
-                            TextColor(Color::WHITE),
+                            BackgroundColor(css::GRAY.into()),
+                            Button,
+                        ))
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text(">".to_string()),
+                                TextFont {
+                                    font: font.0.clone(),
+                                    font_size: 64.0,
+                                    ..default()
+                                },
+                                TextColor(Color::WHITE),
                             ));
                         });
                 });
