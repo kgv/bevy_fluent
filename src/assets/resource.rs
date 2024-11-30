@@ -32,7 +32,7 @@ impl AssetLoader for ResourceAssetLoader {
     type Settings = ();
     type Error = Error;
 
-    async fn load<>(
+    async fn load(
         &self,
         reader: &mut dyn Reader,
         _: &Self::Settings,
