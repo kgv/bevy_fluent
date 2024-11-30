@@ -32,11 +32,11 @@ impl AssetLoader for ResourceAssetLoader {
     type Settings = ();
     type Error = Error;
 
-    async fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader<'_>,
-        _: &'a Self::Settings,
-        _: &'a mut LoadContext<'_>,
+    async fn load<>(
+        &self,
+        reader: &mut dyn Reader,
+        _: &Self::Settings,
+        _: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut content = String::new();
         reader.read_to_string(&mut content).await?;
