@@ -12,7 +12,7 @@ use tracing::instrument;
 
 /// [`FluentResource`](fluent::FluentResource) wrapper
 #[derive(Asset, Clone, Debug, TypePath)]
-pub struct ResourceAsset(pub(crate) Arc<FluentResource>);
+pub struct ResourceAsset(pub Arc<FluentResource>);
 
 impl Deref for ResourceAsset {
     type Target = FluentResource;
