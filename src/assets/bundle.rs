@@ -29,7 +29,7 @@ impl Deref for BundleAsset {
 }
 
 /// [`AssetLoader`](bevy::asset::AssetLoader) implementation for [`BundleAsset`]
-#[derive(Default)]
+#[derive(Default, TypePath)]
 pub struct BundleAssetLoader;
 
 impl AssetLoader for BundleAssetLoader {
@@ -43,7 +43,7 @@ impl AssetLoader for BundleAssetLoader {
         _: &Self::Settings,
         load_context: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
-        let path = load_context.path();
+        let path = load_context.path().path();
         let mut content = String::new();
         reader.read_to_string(&mut content).await?;
         match path.extension() {
@@ -70,12 +70,12 @@ struct Data {
     resources: Vec<PathBuf>,
 }
 
-#[instrument(fields(path = %load_context.path().display()), skip_all)]
+#[instrument(fields(path = %load_context.path().path().display()), skip_all)]
 async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAsset> {
     let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
     for mut path in data.resources {
         if path.is_relative() {
-            if let Some(parent) = load_context.path().parent() {
+            if let Some(parent) = load_context.path().path().parent() {
                 path = parent.join(path);
             }
         }

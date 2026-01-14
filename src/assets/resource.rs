@@ -24,7 +24,7 @@ impl Deref for ResourceAsset {
 
 /// [`AssetLoader`](bevy::asset::AssetLoader) implementation for
 /// [`ResourceAsset`]
-#[derive(Default)]
+#[derive(Default, TypePath)]
 pub struct ResourceAssetLoader;
 
 impl AssetLoader for ResourceAssetLoader {
