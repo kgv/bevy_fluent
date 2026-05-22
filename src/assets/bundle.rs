@@ -3,7 +3,7 @@
 use super::{Error, Result};
 use crate::ResourceAsset;
 use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
+    asset::{io::Reader, AssetLoader, AssetPath, AsyncReadExt, LoadContext},
     prelude::*,
     reflect::TypePath,
 };
@@ -73,17 +73,19 @@ struct Data {
 #[instrument(fields(path = %load_context.path().path().display()), skip_all)]
 async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAsset> {
     let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
-    for mut path in data.resources {
-        if path.is_relative() {
-            if let Some(parent) = load_context.path().path().parent() {
-                path = parent.join(path);
-            }
-        }
+    let base = load_context.path().clone();
+    for path in data.resources {
+        let path_str = path.to_string_lossy();
+        let resolved: AssetPath<'static> = if path.is_relative() {
+            base.resolve_embed(&path_str)?.into_owned()
+        } else {
+            AssetPath::parse(&path_str).clone_owned()
+        };
         let loaded = load_context
             .loader()
             .immediate()
             .with_unknown_type()
-            .load(path)
+            .load(resolved)
             .await?;
         let resource = loaded.get::<ResourceAsset>().unwrap();
         if let Err(errors) = bundle.add_resource(resource.0.clone()) {

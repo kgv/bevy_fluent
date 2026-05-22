@@ -1,4 +1,4 @@
-use bevy::asset::LoadDirectError;
+use bevy::asset::{LoadDirectError, ParseAssetPathError};
 use ron::error::SpannedError;
 use std::io;
 use thiserror::Error;
@@ -13,6 +13,8 @@ pub enum Error {
     Io(#[from] io::Error),
     #[error(transparent)]
     LoadDirect(#[from] LoadDirectError),
+    #[error(transparent)]
+    ParseAssetPath(#[from] ParseAssetPathError),
     #[error(transparent)]
     Ron(#[from] SpannedError),
     #[error(transparent)]
