@@ -37,5 +37,6 @@ fn localized_hello_world(
         assert!(
             matches!(localization.content("hello-world"), Some(content) if content == "hello world")
         );
+        info_once!("fallback chain resolved; assertions passed");
     }
 }

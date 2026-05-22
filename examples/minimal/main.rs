@@ -25,6 +25,8 @@ fn localized_hello_world(
     let handle = &*handle.get_or_insert_with(|| asset_server.load("locales/en-US/main.ftl.yml"));
     if let Some(LoadState::Loaded) = asset_server.get_load_state(handle) {
         let bundle = assets.get(handle).unwrap();
-        assert!(matches!(bundle.content("hello-world"), Some(content) if content == "hello world"));
+        let content = bundle.content("hello-world");
+        assert!(matches!(&content, Some(s) if s == "hello world"));
+        info_once!(?content, "bundle loaded; assertions passed");
     }
 }
