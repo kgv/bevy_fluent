@@ -31,7 +31,7 @@ intl-memoizer = "0.5.1"
 ron = "0.12"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_yaml = "0.9.32"
-thiserror = "1.0.58"
+thiserror = "2.0.18"
 tracing = "0.1.40"
 unic-langid = { version = "0.9.4", features = ["serde"] }
 uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
