@@ -55,8 +55,8 @@ pub fn setup(
                     parent.spawn((
                         Text(choose_language),
                         TextFont {
-                            font: font.0.clone(),
-                            font_size: 64.0,
+                            font: font.0.clone().into(),
+                            font_size: FontSize::Px(64.0),
                             ..default()
                         },
                         TextColor(Color::WHITE),
@@ -92,8 +92,8 @@ pub fn setup(
                             parent.spawn((
                                 Text("<".to_string()),
                                 TextFont {
-                                    font: font.0.clone(),
-                                    font_size: 64.0,
+                                    font: font.0.clone().into(),
+                                    font_size: FontSize::Px(64.0),
                                     ..default()
                                 },
                                 TextColor(Color::WHITE),
@@ -116,8 +116,8 @@ pub fn setup(
                             parent.spawn((
                                 Text(locale),
                                 TextFont {
-                                    font: font.0.clone(),
-                                    font_size: 64.0,
+                                    font: font.0.clone().into(),
+                                    font_size: FontSize::Px(64.0),
                                     ..default()
                                 },
                                 TextColor(Color::WHITE),
@@ -142,8 +142,8 @@ pub fn setup(
                             parent.spawn((
                                 Text(">".to_string()),
                                 TextFont {
-                                    font: font.0.clone(),
-                                    font_size: 64.0,
+                                    font: font.0.clone().into(),
+                                    font_size: FontSize::Px(64.0),
                                     ..default()
                                 },
                                 TextColor(Color::WHITE),
