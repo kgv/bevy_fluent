@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=kgv&project=bevy_fluent&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # Bevy fluent
 
 [![crates.io](https://img.shields.io/crates/v/bevy_fluent.svg)](https://crates.io/crates/bevy_fluent)
