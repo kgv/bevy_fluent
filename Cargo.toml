@@ -1,6 +1,6 @@
 [package]
 name = "bevy_fluent"
-version = "0.14.0"
+version = "0.15.0"
 authors = ["g <kgv@users.noreply.github.com>"]
 edition = "2021"
 description = "Bevy plugin for localization using Fluent"
@@ -18,7 +18,7 @@ categories = [
 exclude = [".github/**/*"]
 
 [dependencies]
-bevy = { version = "0.19.0", default-features = false, features = [
+bevy = { version = "0.19", default-features = false, features = [
   "bevy_asset",
   "bevy_log",
 ] }
@@ -37,5 +37,5 @@ unic-langid = { version = "0.9.4", features = ["serde"] }
 uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 
 [dev-dependencies]
-bevy = "0.19.0"
+bevy = "0.19"
 unic-langid = { version = "0.9.4", features = ["macros"] }
