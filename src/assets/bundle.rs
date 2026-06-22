@@ -80,12 +80,7 @@ async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAs
                 path = parent.join(path);
             }
         }
-        let loaded = load_context
-            .loader()
-            .immediate()
-            .with_unknown_type()
-            .load(path)
-            .await?;
+        let loaded = load_context.load_builder().load_untyped_value(path).await?;
         let resource = loaded.get::<ResourceAsset>().unwrap();
         if let Err(errors) = bundle.add_resource(resource.0.clone()) {
             warn_span!("add_resource").in_scope(|| {
