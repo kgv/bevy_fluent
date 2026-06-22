@@ -71,6 +71,7 @@ struct Data {
 }
 
 #[instrument(fields(path = %load_context.path().path().display()), skip_all)]
+#[allow(clippy::result_large_err)]
 async fn load(data: Data, load_context: &mut LoadContext<'_>) -> Result<BundleAsset> {
     let mut bundle = FluentBundle::new_concurrent(vec![data.locale.clone()]);
     for mut path in data.resources {
