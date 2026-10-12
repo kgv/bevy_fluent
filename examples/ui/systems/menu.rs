@@ -5,7 +5,13 @@ use crate::{
     to_sentence_case::ToSentenceCase,
     GameState,
 };
-use bevy::{color::palettes::css, prelude::*};
+use bevy::{
+    color::palettes::css,
+    picking::hover::Hovered,
+    prelude::*,
+    ui::Pressed,
+    ui_widgets::{Activate, Button},
+};
 use bevy_fluent::prelude::*;
 use fluent_content::Content;
 
@@ -87,7 +93,9 @@ pub fn setup(
                             },
                             BackgroundColor(css::GRAY.into()),
                             Button,
+                            Hovered::default(),
                         ))
+                        .observe(on_activate_previous)
                         .with_children(|parent| {
                             parent.spawn((
                                 Text("<".to_string()),
@@ -137,7 +145,9 @@ pub fn setup(
                             },
                             BackgroundColor(css::GRAY.into()),
                             Button,
+                            Hovered::default(),
                         ))
+                        .observe(on_activate_next)
                         .with_children(|parent| {
                             parent.spawn((
                                 Text(">".to_string()),
@@ -159,38 +169,55 @@ pub fn cleanup(mut commands: Commands, query: Query<Entity, With<Menu>>) {
     }
 }
 
-pub fn interaction(
-    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<Button>)>,
+pub fn update_button_style(
+    mut buttons: Query<
+        (Has<Pressed>, &Hovered, &mut BackgroundColor),
+        (Or<(Changed<Pressed>, Changed<Hovered>)>, With<Button>),
+    >,
 ) {
-    for (interaction, mut color) in query.iter_mut() {
-        *color = match interaction {
-            Interaction::Pressed => css::DARK_GRAY.into(),
-            Interaction::Hovered => css::SILVER.into(),
-            Interaction::None => css::GRAY.into(),
+    for (pressed, hovered, mut color) in &mut buttons {
+        set_button_style(hovered.get(), pressed, &mut color);
+    }
+}
+
+/// Supplementary system to detect removed marker components
+pub fn update_button_style2(
+    mut buttons: Query<(Has<Pressed>, &Hovered, &mut BackgroundColor), With<Button>>,
+    mut removed_depressed: RemovedComponents<Pressed>,
+) {
+    removed_depressed.read().for_each(|entity| {
+        if let Ok((pressed, hovered, mut color)) = buttons.get_mut(entity) {
+            set_button_style(hovered.get(), pressed, &mut color);
         }
-    }
+    });
 }
 
-pub fn next(
-    mut swiper: Swiper,
-    mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
-) {
-    if let Ok(Interaction::Pressed) = query.single() {
-        swiper.next();
-        next_state.set(GameState::Load);
-    }
+fn set_button_style(hovered: bool, pressed: bool, color: &mut BackgroundColor) {
+    *color = if pressed {
+        css::DARK_GRAY.into()
+    } else if hovered {
+        css::SILVER.into()
+    } else {
+        css::GRAY.into()
+    };
 }
 
-pub fn previous(
+pub fn on_activate_next(
+    _: On<Activate>,
     mut swiper: Swiper,
     mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
 ) {
-    if let Ok(Interaction::Pressed) = query.single() {
-        swiper.previous();
-        next_state.set(GameState::Load);
-    }
+    swiper.next();
+    next_state.set(GameState::Load);
+}
+
+pub fn on_activate_previous(
+    _: On<Activate>,
+    mut swiper: Swiper,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    swiper.previous();
+    next_state.set(GameState::Load);
 }
 
 // const LOCALES: &[LanguageIdentifier] = &[de::DE, en::US, ru::BY, ru::RU];

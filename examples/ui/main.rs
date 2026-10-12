@@ -27,7 +27,8 @@ fn main() {
         .add_systems(OnExit(GameState::Menu), menu::cleanup)
         .add_systems(
             Update,
-            (menu::interaction, menu::next, menu::previous).run_if(in_state(GameState::Menu)),
+            (menu::update_button_style, menu::update_button_style2)
+                .run_if(in_state(GameState::Menu)),
         )
         .run();
 }
