@@ -1,13 +1,7 @@
 use bevy::prelude::*;
 
-/// Menu
-#[derive(Component)]
-pub struct Menu;
-
-/// Next button
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 pub struct NextButton;
 
-/// Previous button
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 pub struct PreviousButton;

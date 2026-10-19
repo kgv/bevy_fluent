@@ -1,5 +1,5 @@
 use crate::{
-    components::{Menu, NextButton, PreviousButton},
+    components::{NextButton, PreviousButton},
     resources::Font,
     systems::parameters::Swiper,
     to_sentence_case::ToSentenceCase,
@@ -9,6 +9,7 @@ use bevy::{
     color::palettes::css,
     picking::hover::Hovered,
     prelude::*,
+    text::FontSourceTemplate,
     ui::Pressed,
     ui_widgets::{Activate, Button},
 };
@@ -27,146 +28,118 @@ pub fn setup(
         .content("choose-language")
         .unwrap()
         .to_sentence_case();
-    // camera
-    commands.spawn(Camera2d).insert(Menu);
-    // ui
-    commands
-        .spawn((
+
+    commands.spawn_scene(bsn! {
+        #Camera
+        Camera2d
+        DespawnOnExit<GameState>(GameState::Menu)
+    });
+
+    commands.spawn_scene(bsn! {
+        #UiRoot
+        Node {
+            width: percent(100),
+            height: percent(100),
+            position_type: PositionType::Absolute,
+            flex_direction: FlexDirection::ColumnReverse,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::FlexStart,
+        }
+        BackgroundColor(Color::NONE)
+        DespawnOnExit<GameState>(GameState::Menu)
+        Children [
+            #Header
             Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::ColumnReverse,
+                width: percent(100),
+                height: percent(25),
+                justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                justify_content: JustifyContent::FlexStart,
-                ..default()
-            },
-            BackgroundColor(Color::NONE),
-        ))
-        .insert(Menu)
-        .with_children(|parent| {
-            // Header
-            parent
-                .spawn((
-                    Node {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(25.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    BackgroundColor(css::DARK_GRAY.into()),
-                ))
-                .with_children(|parent| {
-                    parent.spawn((
-                        Text(choose_language),
-                        TextFont {
-                            font: font.0.clone().into(),
-                            font_size: FontSize::Px(64.0),
-                            ..default()
-                        },
-                        TextColor(Color::WHITE),
-                    ));
-                });
-            // Content
-            parent
-                .spawn(Node {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(75.0),
+            }
+            BackgroundColor(css::DARK_GRAY)
+            Children [
+                Text(choose_language)
+                TextFont {
+                    font: FontSourceTemplate::Handle({font.clone()}),
+                    font_size: px(64),
+                }
+                TextColor(Color::WHITE)
+            ]
+            --
+            #Content
+            Node {
+                width: percent(100),
+                height: percent(75),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: auto(),
+            }
+            Children [
+                #PreviousButton
+                PreviousButton
+                Button
+                Hovered
+                Node {
+                    width: percent(10),
+                    height: percent(20),
+                    min_width: px(64),
+                    min_height: px(64),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Auto),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    parent
-                        .spawn((
-                            PreviousButton,
-                            Node {
-                                width: Val::Percent(10.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(64.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                            Button,
-                            Hovered::default(),
-                        ))
-                        .observe(on_activate_previous)
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text("<".to_string()),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            Node {
-                                width: Val::Percent(80.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(256.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text(locale),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            NextButton,
-                            Node {
-                                width: Val::Percent(10.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(64.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                            Button,
-                            Hovered::default(),
-                        ))
-                        .observe(on_activate_next)
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text(">".to_string()),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                });
-        });
-}
-
-pub fn cleanup(mut commands: Commands, query: Query<Entity, With<Menu>>) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
+                }
+                BackgroundColor(css::GRAY)
+                on(on_activate_menu_button)
+                Children [
+                    Text("<")
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+                --
+                Node {
+                    width: percent(80),
+                    height: percent(20),
+                    min_width: px(256),
+                    min_height: px(64),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                }
+                BackgroundColor(css::GRAY)
+                Children [
+                    Text(locale)
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+                --
+                #NextButton
+                NextButton
+                Button
+                Hovered
+                Node {
+                    width: percent(10),
+                    height: percent(20),
+                    min_width: px(64),
+                    min_height: px(64),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                }
+                BackgroundColor(css::GRAY)
+                on(on_activate_menu_button)
+                Children [
+                    Text(">")
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+            ]
+        ]
+    });
 }
 
 pub fn update_button_style(
@@ -202,46 +175,24 @@ fn set_button_style(hovered: bool, pressed: bool, color: &mut BackgroundColor) {
     };
 }
 
-pub fn on_activate_next(
-    _: On<Activate>,
+pub fn on_activate_menu_button(
+    event: On<Activate>,
     mut swiper: Swiper,
     mut next_state: ResMut<NextState<GameState>>,
+    query: Query<AnyOf<(&NextButton, &PreviousButton)>>,
 ) {
-    swiper.next();
+    let Ok((is_next_button, _)) = query
+        .get(event.event_target())
+        .map(|(next, prev)| (next.is_some(), prev.is_some()))
+    else {
+        return;
+    };
+
+    if is_next_button {
+        swiper.next();
+    } else {
+        swiper.previous();
+    }
+
     next_state.set(GameState::Load);
 }
-
-pub fn on_activate_previous(
-    _: On<Activate>,
-    mut swiper: Swiper,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    swiper.previous();
-    next_state.set(GameState::Load);
-}
-
-// const LOCALES: &[LanguageIdentifier] = &[de::DE, en::US, ru::BY, ru::RU];
-
-// /// Shift to one of the next or previous locale
-// trait Shift {
-//     fn shift(&mut self, count: isize);
-// }
-
-// impl Shift for Locale {
-//     fn shift(&mut self, count: isize) {
-//         error!(%count);
-//         if let Some(mut position) = LOCALES.iter().position(|locale| locale == self.requested()) {
-//             error!(%position);
-//             if count.is_positive() {
-//                 let count = count as _;
-//                 position = position.saturating_add(count).min(LOCALES.len() - 1);
-//             } else if count.is_negative() {
-//                 let count = count.abs() as _;
-//                 position = position.saturating_sub(count);
-//             }
-//             error!(%position);
-//             *self =
-//                 Self::new(LOCALES[position].clone()).with_default(self.default().unwrap().clone());
-//         }
-//     }
-// }
