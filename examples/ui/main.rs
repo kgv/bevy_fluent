@@ -39,7 +39,6 @@ pub enum GameState {
     Menu,
 }
 
-mod components;
 mod locales;
 mod resources;
 mod systems;

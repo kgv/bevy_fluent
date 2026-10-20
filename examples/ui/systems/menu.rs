@@ -1,9 +1,5 @@
 use crate::{
-    components::{NextButton, PreviousButton},
-    resources::Font,
-    systems::parameters::Swiper,
-    to_sentence_case::ToSentenceCase,
-    GameState,
+    resources::Font, systems::parameters::Swiper, to_sentence_case::ToSentenceCase, GameState,
 };
 use bevy::{
     color::palettes::css,
@@ -75,7 +71,6 @@ pub fn setup(
             }
             Children [
                 #PreviousButton
-                PreviousButton
                 Button
                 Hovered
                 Node {
@@ -87,7 +82,12 @@ pub fn setup(
                     align_items: AlignItems::Center,
                 }
                 BackgroundColor(css::GRAY)
-                on(on_activate_menu_button)
+                on(
+                    |_: On<Activate>, mut swiper: Swiper, mut next_state: ResMut<NextState<GameState>>| {
+                        swiper.previous();
+                        next_state.set(GameState::Load);
+                    },
+                )
                 Children [
                     Text("<")
                     TextFont {
@@ -116,7 +116,6 @@ pub fn setup(
                 ]
                 --
                 #NextButton
-                NextButton
                 Button
                 Hovered
                 Node {
@@ -128,7 +127,12 @@ pub fn setup(
                     align_items: AlignItems::Center,
                 }
                 BackgroundColor(css::GRAY)
-                on(on_activate_menu_button)
+                on(
+                    |_: On<Activate>, mut swiper: Swiper, mut next_state: ResMut<NextState<GameState>>| {
+                        swiper.next();
+                        next_state.set(GameState::Load);
+                    },
+                )
                 Children [
                     Text(">")
                     TextFont {
@@ -173,26 +177,4 @@ fn set_button_style(hovered: bool, pressed: bool, color: &mut BackgroundColor) {
     } else {
         css::GRAY.into()
     };
-}
-
-pub fn on_activate_menu_button(
-    event: On<Activate>,
-    mut swiper: Swiper,
-    mut next_state: ResMut<NextState<GameState>>,
-    query: Query<AnyOf<(&NextButton, &PreviousButton)>>,
-) {
-    let Ok((is_next_button, _)) = query
-        .get(event.event_target())
-        .map(|(next, prev)| (next.is_some(), prev.is_some()))
-    else {
-        return;
-    };
-
-    if is_next_button {
-        swiper.next();
-    } else {
-        swiper.previous();
-    }
-
-    next_state.set(GameState::Load);
 }
