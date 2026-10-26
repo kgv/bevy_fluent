@@ -3,7 +3,7 @@ use std::ops::Deref;
 use unic_langid::LanguageIdentifier;
 
 /// Font
-#[derive(Resource)]
+#[derive(Resource, Deref)]
 pub struct Font(pub Handle<BevyFont>);
 
 impl FromWorld for Font {

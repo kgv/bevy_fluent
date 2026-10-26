@@ -1,11 +1,14 @@
 use crate::{
-    components::{Menu, NextButton, PreviousButton},
-    resources::Font,
-    systems::parameters::Swiper,
-    to_sentence_case::ToSentenceCase,
-    GameState,
+    resources::Font, systems::parameters::Swiper, to_sentence_case::ToSentenceCase, GameState,
 };
-use bevy::{color::palettes::css, prelude::*};
+use bevy::{
+    color::palettes::css,
+    picking::hover::Hovered,
+    prelude::*,
+    text::FontSourceTemplate,
+    ui::Pressed,
+    ui_widgets::{Activate, Button},
+};
 use bevy_fluent::prelude::*;
 use fluent_content::Content;
 
@@ -21,200 +24,157 @@ pub fn setup(
         .content("choose-language")
         .unwrap()
         .to_sentence_case();
-    // camera
-    commands.spawn(Camera2d).insert(Menu);
-    // ui
-    commands
-        .spawn((
+
+    commands.spawn_scene(bsn! {
+        #Camera
+        Camera2d
+        DespawnOnExit<GameState>(GameState::Menu)
+    });
+
+    commands.spawn_scene(bsn! {
+        #UiRoot
+        Node {
+            width: percent(100),
+            height: percent(100),
+            position_type: PositionType::Absolute,
+            flex_direction: FlexDirection::ColumnReverse,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::FlexStart,
+        }
+        BackgroundColor(Color::NONE)
+        DespawnOnExit<GameState>(GameState::Menu)
+        Children [
+            #Header
             Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::ColumnReverse,
+                width: percent(100),
+                height: percent(25),
+                justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                justify_content: JustifyContent::FlexStart,
-                ..default()
-            },
-            BackgroundColor(Color::NONE),
-        ))
-        .insert(Menu)
-        .with_children(|parent| {
-            // Header
-            parent
-                .spawn((
-                    Node {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(25.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    BackgroundColor(css::DARK_GRAY.into()),
-                ))
-                .with_children(|parent| {
-                    parent.spawn((
-                        Text(choose_language),
-                        TextFont {
-                            font: font.0.clone().into(),
-                            font_size: FontSize::Px(64.0),
-                            ..default()
-                        },
-                        TextColor(Color::WHITE),
-                    ));
-                });
-            // Content
-            parent
-                .spawn(Node {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(75.0),
+            }
+            BackgroundColor(css::DARK_GRAY)
+            Children [
+                Text(choose_language)
+                TextFont {
+                    font: FontSourceTemplate::Handle({font.clone()}),
+                    font_size: px(64),
+                }
+                TextColor(Color::WHITE)
+            ]
+            --
+            #Content
+            Node {
+                width: percent(100),
+                height: percent(75),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: auto(),
+            }
+            Children [
+                #PreviousButton
+                Button
+                Hovered
+                Node {
+                    width: percent(10),
+                    height: percent(20),
+                    min_width: px(64),
+                    min_height: px(64),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Auto),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    parent
-                        .spawn((
-                            PreviousButton,
-                            Node {
-                                width: Val::Percent(10.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(64.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                            Button,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text("<".to_string()),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            Node {
-                                width: Val::Percent(80.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(256.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text(locale),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                    parent
-                        .spawn((
-                            NextButton,
-                            Node {
-                                width: Val::Percent(10.0),
-                                height: Val::Percent(20.0),
-                                min_width: Val::Px(64.0),
-                                min_height: Val::Px(64.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            BackgroundColor(css::GRAY.into()),
-                            Button,
-                        ))
-                        .with_children(|parent| {
-                            parent.spawn((
-                                Text(">".to_string()),
-                                TextFont {
-                                    font: font.0.clone().into(),
-                                    font_size: FontSize::Px(64.0),
-                                    ..default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                });
-        });
+                }
+                BackgroundColor(css::GRAY)
+                on(
+                    |_: On<Activate>, mut swiper: Swiper, mut next_state: ResMut<NextState<GameState>>| {
+                        swiper.previous();
+                        next_state.set(GameState::Load);
+                    },
+                )
+                Children [
+                    Text("<")
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+                --
+                Node {
+                    width: percent(80),
+                    height: percent(20),
+                    min_width: px(256),
+                    min_height: px(64),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                }
+                BackgroundColor(css::GRAY)
+                Children [
+                    Text(locale)
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+                --
+                #NextButton
+                Button
+                Hovered
+                Node {
+                    width: percent(10),
+                    height: percent(20),
+                    min_width: px(64),
+                    min_height: px(64),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                }
+                BackgroundColor(css::GRAY)
+                on(
+                    |_: On<Activate>, mut swiper: Swiper, mut next_state: ResMut<NextState<GameState>>| {
+                        swiper.next();
+                        next_state.set(GameState::Load);
+                    },
+                )
+                Children [
+                    Text(">")
+                    TextFont {
+                        font: FontSourceTemplate::Handle({font.clone()}),
+                        font_size: px(64),
+                    }
+                    TextColor(Color::WHITE)
+                ]
+            ]
+        ]
+    });
 }
 
-pub fn cleanup(mut commands: Commands, query: Query<Entity, With<Menu>>) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
+pub fn update_button_style(
+    mut buttons: Query<
+        (Has<Pressed>, &Hovered, &mut BackgroundColor),
+        (Or<(Changed<Pressed>, Changed<Hovered>)>, With<Button>),
+    >,
+) {
+    for (pressed, hovered, mut color) in &mut buttons {
+        set_button_style(hovered.get(), pressed, &mut color);
     }
 }
 
-pub fn interaction(
-    mut query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<Button>)>,
+/// Supplementary system to detect removed marker components
+pub fn update_button_style2(
+    mut buttons: Query<(Has<Pressed>, &Hovered, &mut BackgroundColor), With<Button>>,
+    mut removed_depressed: RemovedComponents<Pressed>,
 ) {
-    for (interaction, mut color) in query.iter_mut() {
-        *color = match interaction {
-            Interaction::Pressed => css::DARK_GRAY.into(),
-            Interaction::Hovered => css::SILVER.into(),
-            Interaction::None => css::GRAY.into(),
+    removed_depressed.read().for_each(|entity| {
+        if let Ok((pressed, hovered, mut color)) = buttons.get_mut(entity) {
+            set_button_style(hovered.get(), pressed, &mut color);
         }
-    }
+    });
 }
 
-pub fn next(
-    mut swiper: Swiper,
-    mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<NextButton>)>,
-) {
-    if let Ok(Interaction::Pressed) = query.single() {
-        swiper.next();
-        next_state.set(GameState::Load);
-    }
+fn set_button_style(hovered: bool, pressed: bool, color: &mut BackgroundColor) {
+    *color = if pressed {
+        css::DARK_GRAY.into()
+    } else if hovered {
+        css::SILVER.into()
+    } else {
+        css::GRAY.into()
+    };
 }
-
-pub fn previous(
-    mut swiper: Swiper,
-    mut next_state: ResMut<NextState<GameState>>,
-    query: Query<&Interaction, (Changed<Interaction>, With<PreviousButton>)>,
-) {
-    if let Ok(Interaction::Pressed) = query.single() {
-        swiper.previous();
-        next_state.set(GameState::Load);
-    }
-}
-
-// const LOCALES: &[LanguageIdentifier] = &[de::DE, en::US, ru::BY, ru::RU];
-
-// /// Shift to one of the next or previous locale
-// trait Shift {
-//     fn shift(&mut self, count: isize);
-// }
-
-// impl Shift for Locale {
-//     fn shift(&mut self, count: isize) {
-//         error!(%count);
-//         if let Some(mut position) = LOCALES.iter().position(|locale| locale == self.requested()) {
-//             error!(%position);
-//             if count.is_positive() {
-//                 let count = count as _;
-//                 position = position.saturating_add(count).min(LOCALES.len() - 1);
-//             } else if count.is_negative() {
-//                 let count = count.abs() as _;
-//                 position = position.saturating_sub(count);
-//             }
-//             error!(%position);
-//             *self =
-//                 Self::new(LOCALES[position].clone()).with_default(self.default().unwrap().clone());
-//         }
-//     }
-// }

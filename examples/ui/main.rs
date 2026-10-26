@@ -24,10 +24,10 @@ fn main() {
         .add_systems(OnEnter(GameState::Load), load::setup)
         .add_systems(Update, load::update.run_if(in_state(GameState::Load)))
         .add_systems(OnEnter(GameState::Menu), menu::setup)
-        .add_systems(OnExit(GameState::Menu), menu::cleanup)
         .add_systems(
             Update,
-            (menu::interaction, menu::next, menu::previous).run_if(in_state(GameState::Menu)),
+            (menu::update_button_style, menu::update_button_style2)
+                .run_if(in_state(GameState::Menu)),
         )
         .run();
 }
@@ -39,7 +39,6 @@ pub enum GameState {
     Menu,
 }
 
-mod components;
 mod locales;
 mod resources;
 mod systems;
